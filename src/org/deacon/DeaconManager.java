@@ -9,7 +9,9 @@ public class DeaconManager {
 	private static HashMap<String,DeaconService> deaconServices = new HashMap<String, DeaconService>();
 	
 	public void newDeaconService(String name, String location, int port, String channel) throws UnknownHostException, IOException{
-		deaconServices.put(name, new DeaconService(location, port, channel));
+		//deaconServices.put(name, new DeaconService(location, port, channel));
+		deaconServices.put(name, new DeaconService(location, port));
+		deaconServices.get(name).joinChannel(channel, 0);
 	}
 	
 	

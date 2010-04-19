@@ -6,10 +6,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class DeaconService extends DeaconObservable {
 
-	private String channel;
+	private final String host;
+	private final int port;
+	private final long hostid;
+	
+	private ArrayList<String> subscriptions;
 	private Socket sock = null;
 	private PrintWriter out = null;
 	private BufferedReader in = null;
@@ -23,7 +28,7 @@ public class DeaconService extends DeaconObservable {
 			while (running){
 
 				try {
-					sock = new Socket("data.meteorserver.org", 80);
+					sock = new Socket(host, port);
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				} catch (UnknownHostException e) {
@@ -34,17 +39,26 @@ public class DeaconService extends DeaconObservable {
 					e.printStackTrace();
 				}
 				
+				// Construct the subscription string
+				String serverstring = "GET /push/" + hostid + "/longpoll";
+				for(String channel : subscriptions) {
+					serverstring += "/" + channel;
+				}
+				serverstring += " HTTP/1.1\r\n\r\n";
+				
 				
 				// Subscribe to the channel
 				//out.println("GET /push/" + System.currentTimeMillis() + "/longpoll/demo HTTP/1.1\r\n\r\n");
-				out.println("GET "+ channel +" HTTP/1.1\r\n\r\n");
+				//out.println("GET "+ channel +" HTTP/1.1\r\n\r\n");
+				System.out.println("Server string: " + serverstring);
+				out.println(serverstring);
 				
 				try {
 					String newResponse = "";
 					// Wait for a response from the channel
 					while( (response=in.readLine()) != null && running) {
 						//System.out.println("Got response: " + response);
-						newResponse+=response;
+						newResponse += response + "\n";
 					}
 					if(running){
 						notifyObservers( new DeaconResponse(newResponse) );
@@ -63,19 +77,29 @@ public class DeaconService extends DeaconObservable {
 	});
 	
 	
-	DeaconService(String location, int port, String channel) throws UnknownHostException, IOException{
-		setLocation(location, port);
-		setChannel(channel);
-		
-	}
-
-
-	public synchronized void setLocation(String location, int port) throws UnknownHostException, IOException{
-		sock = new Socket(location, port);
+	DeaconService(String host, int port) throws UnknownHostException, IOException{
+		this.host = host;
+		this.port = port;
+		this.hostid = System.currentTimeMillis();
+		this.subscriptions = new ArrayList<String>();
 	}
 	
-	public synchronized void setChannel(String chan){
-		channel = chan;
+	public void joinChannel(String chan, int backtrack){
+		boolean wasrunning = false;
+		if(deaconThread.isAlive()) {
+			wasrunning = true;
+			running = false;
+			while(deaconThread.isAlive()) {}	// Wait for Deaconthread to die
+		}
+		System.out.println("Got into joinChannel with chan="+chan);
+		this.subscriptions.add(chan);
+		if(wasrunning) deaconThread.start();
+		
+		// TODO still need to accommodate the backtrack
+	}
+	
+	public void leaveChannel(String chan) {
+		this.subscriptions.remove(chan);
 	}
 	
 	public void start(){
@@ -93,7 +117,7 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	public String toString(){
-		return "Deacon Service @"+sock.toString()+" on channel: "+channel;
+		return "Deacon Service @" + host + ":" + port;
 	}
 	
 }
