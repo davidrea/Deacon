@@ -1,0 +1,10 @@
+The diagrams in this directory are created using the UML2 Tools from Eclipse:
+http://wiki.eclipse.org/MDT-UML2Tools
+
+After a diagram is updated, its raster image in the img/ directory must also be updated. This is done manually.
+The raster image is referenced by Deacon wiki pages, so the image must be exported before changes will appear in the Deacon wiki.
+The wiki automatically tracks the latest version of the image in the 'master' branch.
+
+To export the image, right-click anywhere on the diagram and select File-->Save As Image File...
+Then be sure the path includes img/ and the file name is the same as the existing file.
+The image will appear as updated in the wiki on your next pushed commit. 
