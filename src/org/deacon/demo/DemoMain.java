@@ -1,7 +1,9 @@
-package org.deacon;
+package org.deacon.demo;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+
+import org.deacon.DeaconService;
 
 public class DemoMain {
 
@@ -11,7 +13,6 @@ public class DemoMain {
 		DemoListener myListener = new DemoListener();
 		
 		DeaconService myService = new DeaconService("data.meteorserver.org",80);
-		myService.joinChannel("demo", 0);
 		myService.joinChannel("demo", 0);
 		
 		myService.register(myListener);

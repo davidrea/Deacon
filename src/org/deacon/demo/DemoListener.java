@@ -1,4 +1,7 @@
-package org.deacon;
+package org.deacon.demo;
+
+import org.deacon.DeaconObserver;
+import org.deacon.DeaconResponse;
 
 public class DemoListener implements DeaconObserver{
 

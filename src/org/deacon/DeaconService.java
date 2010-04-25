@@ -77,7 +77,7 @@ public class DeaconService extends DeaconObservable {
 	});
 	
 	
-	DeaconService(String host, int port) throws UnknownHostException, IOException{
+	public DeaconService(String host, int port) throws UnknownHostException, IOException{
 		this.host = host;
 		this.port = port;
 		this.hostid = System.currentTimeMillis();
@@ -118,6 +118,10 @@ public class DeaconService extends DeaconObservable {
 	
 	public String toString(){
 		return "Deacon Service @" + host + ":" + port;
+	}
+
+	public boolean isRunning() {
+		return this.running;
 	}
 	
 }

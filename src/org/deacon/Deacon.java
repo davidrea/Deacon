@@ -1,58 +1,43 @@
 package org.deacon;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.UnknownHostException;
+
+import org.deacon.interfaces.PushListener;
+
+import android.content.Context;;
 
 public class Deacon {
 	
-	public static void main(String[] args) throws IOException {
-		
-		Socket sock = null;
-		PrintWriter out = null;
-		BufferedReader in = null;
-		
-		
-		int count = 20;
-		String response;
-		
-		// Get 10 messages
-		while(--count >= 0) {
-			
-			System.out.println("DEBUG: Entering loop at count " + (count+1));
-			
-			// Make the stuff
-			try {
-				sock = new Socket("data.meteorserver.org", 80);
-				out  = new PrintWriter(sock.getOutputStream(), true);
-				in   = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-			// Subscribe to the channel
-			//out.println("GET /push/" + System.currentTimeMillis() + "/longpoll/demo HTTP/1.1\r\n\r\n");
-			out.println("GET /push/auswee/longpoll/demo HTTP/1.1\r\n\r\n");
-			
-			// Wait for a response from the channel
-			while( (response=in.readLine()) != null ) {
-				System.out.println("Got response: " + response);
-			}
-
-			out.close();
-			in.close();
-			sock.close();
-			
-		}
-		
+	private Context		  context;
+	private DeaconService service;
+	
+	// Listeners
+	private PushListener onPushListener;
+	
+	public Deacon(Context c, String host, int port) throws UnknownHostException, IOException {
+		this.context = c;
+		this.service = new DeaconService(host, port);
+	}
+	
+	/**
+	 * Subscribes 
+	 * @param channel A string representing the server channel to join
+	 * @param backtrack The number of previously-pushed messages to receive upon subscription
+	 */
+	public void subscribe(final String channel, int backtrack) {
+		this.service.joinChannel(channel, backtrack);
+		// Create a DeaconObserver that combines a channel (joined in service) with the onPushListener
+		// Register the DeaconObserver
+		if(!this.service.isRunning()) this.service.start();
+	}
+	
+	/**
+	 * Register a callback to be invoked when any of the subscribed push notifications is received.
+	 * @param pl The PushListener to call with a push notification
+	 */
+	public void setOnPushListener(PushListener pl) {
+		onPushListener = pl;
 	}
 
 }
