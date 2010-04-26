@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class DeaconService extends DeaconObservable {
 
@@ -20,13 +21,17 @@ public class DeaconService extends DeaconObservable {
 	private BufferedReader in = null;
 	private boolean running=false;
 	
+	/**
+	 * Thread to execute Meteor HTTP GETs and collect the results;
+	 * this thread implements the server interaction mode
+	 */
 	private Thread deaconThread = new Thread(new Runnable() {
 		
 		@Override
 		public void run() {
 			String response = "";
-			while (running){
-
+			while (running){ 
+				
 				try {
 					sock = new Socket(host, port);
 					out  = new PrintWriter(sock.getOutputStream(), true);
@@ -59,9 +64,11 @@ public class DeaconService extends DeaconObservable {
 					while( (response=in.readLine()) != null && running) {
 						//System.out.println("Got response: " + response);
 						newResponse += response + "\n";
+						parse(newResponse);
 					}
 					if(running){
 						notifyObservers( new DeaconResponse(newResponse) );
+						// TODO move this into parser(), allowing observer notification only in the event of an incoming push
 					}
 					out.close();
 					in.close();
@@ -76,7 +83,13 @@ public class DeaconService extends DeaconObservable {
 		}
 	});
 	
-	
+	/**
+	 * DeaconService class constructor
+	 * @param String host Meteor server to which this client should connect
+	 * @param int port TCP port on Meteor server that is awaiting connections
+	 * @throws UnknownHostException if host is unreachable
+	 * @throws IOException if connection cannot be established
+	 */
 	public DeaconService(String host, int port) throws UnknownHostException, IOException{
 		this.host = host;
 		this.port = port;
@@ -84,7 +97,12 @@ public class DeaconService extends DeaconObservable {
 		this.subscriptions = new ArrayList<String>();
 	}
 	
-	public void joinChannel(String chan, int backtrack){
+	/**
+	 * Adds a subscription in the DeaconService to the specified Meteor server channel
+	 * @param String chan The channel name on the Meteor server
+	 * @param int backtrack The number of previously-pushed messages to request upon susbcribing
+	 */
+	public synchronized void joinChannel(String chan, int backtrack){
 		boolean wasrunning = false;
 		if(deaconThread.isAlive()) {
 			wasrunning = true;
@@ -98,10 +116,17 @@ public class DeaconService extends DeaconObservable {
 		// TODO still need to accommodate the backtrack
 	}
 	
-	public void leaveChannel(String chan) {
+	/**
+	 * Unsubscribes this DeaconService from the Meteor channel; Takes effect after the present polling interval terminates.
+	 * @param String chan The channel name on the Meteor server
+	 */
+	public synchronized void leaveChannel(String chan) {
 		this.subscriptions.remove(chan);
 	}
 	
+	/**
+	 * Initiates the connection with the Meteor server
+	 */
 	public void start(){
 		running = true;
 		if (!deaconThread.isAlive()){
@@ -110,18 +135,45 @@ public class DeaconService extends DeaconObservable {
 		
 	}
 	
+	/**
+	 * Closes the connection to the Meteor server; Takes effect after the present polling interval terminates.
+	 */
 	public void stop(){
 		running = false;
-		//deaconThread.stop();//not good, thread should shutdown if running is false
-		//need a better way to do this...
 	}
 	
+	/**
+	 * Returns a description of the DeaconService
+	 */
 	public String toString(){
 		return "Deacon Service @" + host + ":" + port;
 	}
 
+	/**
+	 * Checks the status of the DeaconService
+	 * @return true if DeaconService is running; false if DeaconService is stopped
+	 */
 	public boolean isRunning() {
 		return this.running;
+	}
+	
+	/**
+	 * Parses incoming Meteor commands (in the form of messages returned from the server) and acts on them
+	 * @param meteorMessage
+	 */
+	private synchronized void parse(String meteorMessage) {
+		// TODO This is probably well-suited to a command pattern
+		// Tried to implement this but figured we should get it working for POC first, then refactor
+		
+		// Ignore "HTTP/1.1 200 OK"
+		Pattern p = Pattern.compile("*HTTP*200*");
+		if( p.matcher(meteorMessage).matches() ) return;
+		
+		// First, split the meteorMessage into command and payload
+		System.out.println("Parser got message = " + meteorMessage);
+		String command = meteorMessage.split("[(]+")[0].split("[.]+")[1];
+		System.out.println("Parser got command = " + command);
+//		String payload = 
 	}
 	
 }

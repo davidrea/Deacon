@@ -2,6 +2,8 @@ package org.deacon;
 
 import java.util.ArrayList;
 
+import org.deacon.interfaces.DeaconObserver;
+
 public class DeaconObservable {
 
 	private ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
