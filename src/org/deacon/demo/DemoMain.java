@@ -12,8 +12,9 @@ public class DemoMain {
 	public static void main(String args[]) throws UnknownHostException, IOException{
 		DemoListener myListener = new DemoListener();
 		
-		DeaconService myService = new DeaconService("data.meteorserver.org",80);
-		myService.joinChannel("demo", 0);
+		//DeaconService myService = new DeaconService("data.meteorserver.org",80);
+		DeaconService myService = new DeaconService("home.daverea.com",4670);
+		myService.joinChannel("test", 0);
 		
 		myService.register(myListener);
 		

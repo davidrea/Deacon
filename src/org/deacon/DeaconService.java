@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DeaconService extends DeaconObservable {
@@ -67,7 +68,7 @@ public class DeaconService extends DeaconObservable {
 						parse(newResponse);
 					}
 					if(running){
-						notifyObservers( new DeaconResponse(newResponse) );
+						//notifyObservers( new DeaconResponse(newResponse) );
 						// TODO move this into parser(), allowing observer notification only in the event of an incoming push
 					}
 					out.close();
@@ -164,16 +165,17 @@ public class DeaconService extends DeaconObservable {
 	private synchronized void parse(String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
-		
-		// Ignore "HTTP/1.1 200 OK"
-		Pattern p = Pattern.compile("*HTTP*200*");
-		if( p.matcher(meteorMessage).matches() ) return;
-		
 		// First, split the meteorMessage into command and payload
-		System.out.println("Parser got message = " + meteorMessage);
-		String command = meteorMessage.split("[(]+")[0].split("[.]+")[1];
-		System.out.println("Parser got command = " + command);
-//		String payload = 
+		//Pattern p = Pattern.compile("Meteor\u002E(.*)\u0028(.*)\u0029");
+		Pattern p = Pattern.compile("Meteor\\.(.*)\\((.*)\\)");
+		Matcher m = p.matcher(meteorMessage);
+		int pass = 0;
+		if(m.find()) {
+			while(pass<=m.groupCount()) {
+				System.out.println("Parser: got group "+pass+" = " + m.group(pass++));
+			}
+		}
+		
 	}
 	
 }
