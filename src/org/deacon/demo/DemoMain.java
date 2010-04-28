@@ -14,7 +14,7 @@ public class DemoMain {
 		
 		//DeaconService myService = new DeaconService("data.meteorserver.org",80);
 		DeaconService myService = new DeaconService("home.daverea.com",4670);
-		myService.joinChannel("test", 0);
+		myService.joinChannel("10sec", 0);
 		
 		myService.register(myListener);
 		

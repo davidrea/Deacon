@@ -54,9 +54,7 @@ public class DeaconService extends DeaconObservable {
 				
 				
 				// Subscribe to the channel
-				//out.println("GET /push/" + System.currentTimeMillis() + "/longpoll/demo HTTP/1.1\r\n\r\n");
-				//out.println("GET "+ channel +" HTTP/1.1\r\n\r\n");
-				System.out.println("Server string: " + serverstring);
+				//System.out.println("Server string: " + serverstring);
 				out.println(serverstring);
 				
 				try {
@@ -104,6 +102,7 @@ public class DeaconService extends DeaconObservable {
 	 * @param int backtrack The number of previously-pushed messages to request upon susbcribing
 	 */
 	public synchronized void joinChannel(String chan, int backtrack){
+		System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
 		boolean wasrunning = false;
 		if(deaconThread.isAlive()) {
 			wasrunning = true;
@@ -160,6 +159,15 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Parses incoming Meteor commands (in the form of messages returned from the server) and acts on them
+	 * 
+	 * In lieu of outside protocol documentation, Meteor message format is captured here:
+	 * 		HeaderTemplate HTTP/1.1 ~status~\r\nChannel(~channelinfo~)\r\n
+	 * 		MessageTemplate m.p.<~id~>."~channel~"."{[~text~]}"\r\n
+	 * 		ChannelInfoTemplate "~channel~".~lastMsgID~
+	 * 		PingMessage m.p
+	 * 		SubscriberShutdownMsg m.sd
+	 * TODO - details of the Deacon-specific Meteor configuration should be moved into the Deacon Wiki
+	 * 
 	 * @param meteorMessage
 	 */
 	private synchronized void parse(String meteorMessage) {
@@ -167,15 +175,25 @@ public class DeaconService extends DeaconObservable {
 		// Tried to implement this but figured we should get it working for POC first, then refactor
 		// First, split the meteorMessage into command and payload
 		//Pattern p = Pattern.compile("Meteor\u002E(.*)\u0028(.*)\u0029");
-		Pattern p = Pattern.compile("Meteor\\.(.*)\\((.*)\\)");
+		//Pattern p = Pattern.compile("Meteor\\.(.*)\\((.*)\\)");
+		Pattern p = Pattern.compile("m\\.(.*)\n");
 		Matcher m = p.matcher(meteorMessage);
 		int pass = 0;
 		if(m.find()) {
 			while(pass<=m.groupCount()) {
-				System.out.println("Parser: got group "+pass+" = " + m.group(pass++));
+				String thisgroup = m.group(pass).trim();
+				System.out.println("Parser: got group "+ pass++ +" = " + thisgroup);
+				if(thisgroup.split("\\.")[0].equals("p")) {
+					Pattern message = Pattern.compile("p\\.<(\\d*)>\\.\"(.*)\"\\.\"\\{\\[(.*)\\]\\}\"");
+					Matcher parameters = message.matcher(thisgroup);
+					if(parameters.find()) {
+						System.out.println("  Message ID = " + parameters.group(1));
+						System.out.println("  Channel    = " + parameters.group(2));
+						System.out.println("  Message    = " + parameters.group(3));
+					}
+				}
 			}
 		}
-		
 	}
 	
 }
