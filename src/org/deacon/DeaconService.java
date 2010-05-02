@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.os.Handler;
+import android.os.Message;
+
 public class DeaconService extends DeaconObservable {
 
 	private final String host;
@@ -21,6 +24,13 @@ public class DeaconService extends DeaconObservable {
 	private PrintWriter out = null;
 	private BufferedReader in = null;
 	private boolean running=false;
+	
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(final Message msg) {
+			parse((String)msg.obj);
+		}
+	};
 	
 	/**
 	 * Thread to execute Meteor HTTP GETs and collect the results;
@@ -35,8 +45,9 @@ public class DeaconService extends DeaconObservable {
 				
 				try {
 					sock = new Socket(host, port);
+					System.out.println("Opened socket connection");
 					out  = new PrintWriter(sock.getOutputStream(), true);
-					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -52,22 +63,16 @@ public class DeaconService extends DeaconObservable {
 				}
 				serverstring += " HTTP/1.1\r\n\r\n";
 				
-				
 				// Subscribe to the channel
-				//System.out.println("Server string: " + serverstring);
+//				System.out.println("Server string: " + serverstring);
 				out.println(serverstring);
 				
 				try {
-					String newResponse = "";
 					// Wait for a response from the channel
 					while( (response=in.readLine()) != null && running) {
-						//System.out.println("Got response: " + response);
-						newResponse += response + "\n";
-						parse(newResponse);
-					}
-					if(running){
-						//notifyObservers( new DeaconResponse(newResponse) );
-						// TODO move this into parser(), allowing observer notification only in the event of an incoming push
+//						System.out.println("Got response: " + response);
+						Message msg = Message.obtain(handler, 0, response);
+						msg.sendToTarget();
 					}
 					out.close();
 					in.close();
@@ -173,27 +178,27 @@ public class DeaconService extends DeaconObservable {
 	private synchronized void parse(String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
-		// First, split the meteorMessage into command and payload
-		//Pattern p = Pattern.compile("Meteor\u002E(.*)\u0028(.*)\u0029");
-		//Pattern p = Pattern.compile("Meteor\\.(.*)\\((.*)\\)");
-		Pattern p = Pattern.compile("m\\.(.*)\n");
+//		System.out.println("DeaconService.parse: Got meteorMessage="+meteorMessage);
+		Pattern p = Pattern.compile("m\\.(.*)");
 		Matcher m = p.matcher(meteorMessage);
 		int pass = 0;
 		if(m.find()) {
 			while(pass<=m.groupCount()) {
 				String thisgroup = m.group(pass).trim();
-				System.out.println("Parser: got group "+ pass++ +" = " + thisgroup);
+//				System.out.println("DeaconService.parse: got group="+thisgroup);
 				if(thisgroup.split("\\.")[0].equals("p")) {
 					Pattern message = Pattern.compile("p\\.<(\\d*)>\\.\"(.*)\"\\.\"\\{\\[(.*)\\]\\}\"");
 					Matcher parameters = message.matcher(thisgroup);
 					if(parameters.find()) {
-						System.out.println("  Message ID = " + parameters.group(1));
-						System.out.println("  Channel    = " + parameters.group(2));
-						System.out.println("  Message    = " + parameters.group(3));
+//						System.out.println("  Message ID = " + parameters.group(1));
+//						System.out.println("  Channel    = " + parameters.group(2));
+//						System.out.println("  Message    = " + parameters.group(3));
+						this.notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
 					}
 				}
+				pass++;
 			}
 		}
 	}
-	
+
 }

@@ -1,20 +1,23 @@
 package org.deacon;
 
+// =======> CODE SMELL! This is shaping up to be a data class. Is there any functionality necessary here?!
+
 public class DeaconResponse {
 
-	private String response;
+	private final String channel;
+	private final String payload;
 	
-	DeaconResponse(String resp){
-		response = resp;
+	DeaconResponse(String chan, String resp){
+		channel = chan;
+		payload = resp;
 	}
 
-	public String getResponse(){
-		return response;
+	public String getPayload(){
+		return payload;
 	}
-	
-	public void setResponse(String resp){
-		response = resp;
+
+	public String getChannel() {
+		return channel;
 	}
 	
 }
-
