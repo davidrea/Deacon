@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.os.Handler;
-import android.os.Message;
-
 public class DeaconService extends DeaconObservable {
 
 	private final String host;
@@ -24,13 +21,6 @@ public class DeaconService extends DeaconObservable {
 	private PrintWriter out = null;
 	private BufferedReader in = null;
 	private boolean running=false;
-	
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(final Message msg) {
-			parse((String)msg.obj);
-		}
-	};
 	
 	/**
 	 * Thread to execute Meteor HTTP GETs and collect the results;
@@ -45,7 +35,7 @@ public class DeaconService extends DeaconObservable {
 				
 				try {
 					sock = new Socket(host, port);
-					System.out.println("Opened socket connection");
+//					System.out.println("Opened socket connection");
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
 				} catch (UnknownHostException e) {
@@ -71,8 +61,7 @@ public class DeaconService extends DeaconObservable {
 					// Wait for a response from the channel
 					while( (response=in.readLine()) != null && running) {
 //						System.out.println("Got response: " + response);
-						Message msg = Message.obtain(handler, 0, response);
-						msg.sendToTarget();
+						socketLine(response);
 					}
 					out.close();
 					in.close();
@@ -99,6 +88,15 @@ public class DeaconService extends DeaconObservable {
 		this.port = port;
 		this.hostid = System.currentTimeMillis();
 		this.subscriptions = new ArrayList<String>();
+	}
+	
+	/**
+	 * Called when a new line is received from the Meteor server; enables standalone testing
+	 * Overridden by Android-specific wrapper class
+	 * @param line
+	 */
+	protected void socketLine(String line) {
+		parse(line);
 	}
 	
 	/**
@@ -175,7 +173,7 @@ public class DeaconService extends DeaconObservable {
 	 * 
 	 * @param meteorMessage
 	 */
-	private synchronized void parse(String meteorMessage) {
+	protected synchronized void parse(String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
 //		System.out.println("DeaconService.parse: Got meteorMessage="+meteorMessage);
