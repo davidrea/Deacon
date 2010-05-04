@@ -5,13 +5,12 @@ import java.net.UnknownHostException;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 /**
  * @author dave
  * 
  * Deacon class
- * A thin wrapper around DeaconService which 
+ * A thin wrapper around DeaconService which isolates Android-specific code to maintain standalone testability of the DeaconService class.
  *
  */
 public class Deacon extends DeaconService {

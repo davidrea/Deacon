@@ -93,7 +93,7 @@ public class DeaconService extends DeaconObservable {
 	/**
 	 * Called when a new line is received from the Meteor server; enables standalone testing
 	 * Overridden by Android-specific wrapper class
-	 * @param line
+	 * @param line The received line to be parsed
 	 */
 	protected void socketLine(String line) {
 		parse(line);
