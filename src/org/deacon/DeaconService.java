@@ -21,6 +21,7 @@ public class DeaconService extends DeaconObservable {
 	private PrintWriter out = null;
 	private BufferedReader in = null;
 	private boolean running=false;
+	private boolean error = false;
 	
 	/**
 	 * Thread to execute Meteor HTTP GETs and collect the results;
@@ -38,37 +39,49 @@ public class DeaconService extends DeaconObservable {
 //					System.out.println("Opened socket connection");
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				// Construct the subscription string
-				String serverstring = "GET /push/" + hostid + "/longpoll";
-				for(String channel : subscriptions) {
-					serverstring += "/" + channel;
-				}
-				serverstring += " HTTP/1.1\r\n\r\n";
-				
-				// Subscribe to the channel
-//				System.out.println("Server string: " + serverstring);
-				out.println(serverstring);
-				
-				try {
-					// Wait for a response from the channel
-					while( (response=in.readLine()) != null && running) {
-//						System.out.println("Got response: " + response);
-						socketLine(response);
+					System.out.println("-");
+					if(error){
+						notifyObserversReconnect();
+						error = false;
 					}
-					out.close();
-					in.close();
-					sock.close();
+					
+				} catch (UnknownHostException e) {
+					error = true;
+					notifyObserversError(new DeaconError(e));
+					stop();
+				} catch (IOException e) {
+					error = true;
+					notifyObserversError(new DeaconError(e));
+					stop();
 				}
-				catch(IOException e){
-					e.printStackTrace();
+				
+				if(!error){
+					// Construct the subscription string
+					String serverstring = "GET /push/" + hostid + "/longpoll";
+					for(String channel : subscriptions) {
+						serverstring += "/" + channel;
+					}
+					serverstring += " HTTP/1.1\r\n\r\n";
+					
+					// Subscribe to the channel
+	//				System.out.println("Server string: " + serverstring);
+					out.println(serverstring);
+					
+					try {
+						// Wait for a response from the channel
+						while( (response=in.readLine()) != null && running) {
+	//						System.out.println("Got response: " + response);
+							socketLine(response);
+						}
+						out.close();
+						in.close();
+						sock.close();
+					}
+					catch(IOException e){
+						error = true;
+						notifyObserversError(new DeaconError(e));
+						stop();
+					}
 				}
 					
 			}
@@ -191,7 +204,7 @@ public class DeaconService extends DeaconObservable {
 //						System.out.println("  Message ID = " + parameters.group(1));
 //						System.out.println("  Channel    = " + parameters.group(2));
 //						System.out.println("  Message    = " + parameters.group(3));
-						this.notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
+						notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
 					}
 				}
 				pass++;
