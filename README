@@ -9,7 +9,7 @@
 
 === README ===
 
-The Deacon Project is a push notifications library for the Android platform. The Deacon Project produces "Deacon", a Java class library used by Android developers to receive Push notifications from a Meteor comet web server.
+The Deacon Project aims to produce an open-source push notifications library for the Android platform. "Deacon" is a Java class library used by Android developers to receive Push notifications from a Meteor comet web server. "Deacon-Test" (http://github.com/davidrea/Deacon-Test/) is an Android app that is used for testing and demonstration of Deacon, and is also developed by members of the Deacon project.
 
 For more information see:
 http://deacon.daverea.com/
