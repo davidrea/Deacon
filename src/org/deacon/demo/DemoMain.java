@@ -19,7 +19,8 @@ public class DemoMain implements DeaconServiceObserver{
 	
 	public void run() throws UnknownHostException, IOException {
 		//DeaconService myService = new DeaconService("data.meteorserver.org",80);
-		DeaconService myService = new DeaconService("home2.daverea.com",4670);
+//		DeaconService myService = new DeaconService("home2.daverea.com",4670);
+		DeaconService myService = new DeaconService("home.daverea.com",4670);
 		myService.joinChannel("2sec", 0);
 		
 		myService.register(this);
