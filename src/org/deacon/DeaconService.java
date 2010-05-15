@@ -11,23 +11,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DeaconService extends DeaconObservable {
+	
+	/**
+	 * Class to encapsulate a Meteor channel subscription as an object
+	 */
+	private class Subscription {
+		public String channel="";
+		public int backtrack=0;
+		public int lastMessageReceived=0;
+		public int catchup=0;
+		
+		public String toString() {
+			return "SUB{chan="+channel+"/backtrack="+backtrack+"/LMR="+lastMessageReceived+"}";
+		}
+	}
 
 	private final String host;
 	private final int port;
 	private final long hostid;
 	
-	private ArrayList<String> subscriptions;
+	private ArrayList<Subscription> subscriptions;
 	private Socket sock = null;
 	private PrintWriter out = null;
 	private BufferedReader in = null;
-	private boolean running=false;
-	private boolean error = false;
+	private boolean running = false;
+	private boolean error   = false;
+	private int catchUpTimeOut = 0;
+	private long lastStop = 0;
+	
+	private Thread deaconThread = null;
 	
 	/**
-	 * Thread to execute Meteor HTTP GETs and collect the results;
-	 * this thread implements the server interaction mode
+	 * Runnable to execute Meteor HTTP GETs and collect the results;
+	 * this runnable implements the server interaction mode
 	 */
-	private Thread deaconThread = new Thread(new Runnable() {
+	private class DeaconRunnable implements Runnable {
 		
 		@Override
 		public void run() {
@@ -36,10 +54,9 @@ public class DeaconService extends DeaconObservable {
 				
 				try {
 					sock = new Socket(host, port);
-//					System.out.println("Opened socket connection");
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
-					System.out.println("-");
+					//System.out.println("-");
 					if(error){
 						notifyObserversReconnect();
 						error = false;
@@ -58,13 +75,23 @@ public class DeaconService extends DeaconObservable {
 				if(!error){
 					// Construct the subscription string
 					String serverstring = "GET /push/" + hostid + "/longpoll";
-					for(String channel : subscriptions) {
-						serverstring += "/" + channel;
+					for(Subscription sub : subscriptions) {
+						serverstring += "/" + sub.channel;
+						if(sub.backtrack > 0 && running) {
+							serverstring += ".b" + sub.backtrack;
+							// Backtrack retrieval is one-time-only; reset to zero after backtrack request made
+							sub.backtrack = 0;
+						}
+						else if(sub.catchup > 0 && running) {
+							System.out.println("Found catchup="+sub.catchup+" for chan="+sub.channel);
+							serverstring += ".r" + sub.catchup;
+							// Catchup retrieval is one-time-only; reset to zero after catchup request made
+							sub.catchup = 0;
+						}
 					}
 					serverstring += " HTTP/1.1\r\n\r\n";
 					
 					// Subscribe to the channel
-	//				System.out.println("Server string: " + serverstring);
 					out.println(serverstring);
 					
 					try {
@@ -87,7 +114,7 @@ public class DeaconService extends DeaconObservable {
 			}
 			
 		}
-	});
+	}
 	
 	/**
 	 * DeaconService class constructor
@@ -100,7 +127,26 @@ public class DeaconService extends DeaconObservable {
 		this.host = host;
 		this.port = port;
 		this.hostid = System.currentTimeMillis();
-		this.subscriptions = new ArrayList<String>();
+		this.subscriptions = new ArrayList<Subscription>();
+	}
+	
+	/**
+	 * Set the timeout after which Deacon will no longer try to retrieve pushes missed while shut down
+	 * (This applies to all subscriptions)
+	 * @param seconds The timeout in seconds (0 = no timeout)
+	 */
+	public void catchUpTimeOut(int seconds) {
+		this.catchUpTimeOut = seconds;
+	}
+	
+	/**
+	 * Get the timeout after which Deacon will no longer try to retrieve pushes missed while shut down
+	 * (This applies to all subscriptions)
+	 * Will return "0" if no timeout.
+	 * @return
+	 */
+	public int catchUpTimeOut() {
+		return catchUpTimeOut;
 	}
 	
 	/**
@@ -119,17 +165,10 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public synchronized void joinChannel(String chan, int backtrack){
 		System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
-		boolean wasrunning = false;
-		if(deaconThread.isAlive()) {
-			wasrunning = true;
-			running = false;
-			while(deaconThread.isAlive()) {}	// Wait for Deaconthread to die
-		}
-		System.out.println("Got into joinChannel with chan="+chan);
-		this.subscriptions.add(chan);
-		if(wasrunning) deaconThread.start();
-		
-		// TODO still need to accommodate the backtrack
+		Subscription sub = new Subscription();
+		sub.channel = chan;
+		sub.backtrack = backtrack;
+		this.subscriptions.add(sub);
 	}
 	
 	/**
@@ -137,18 +176,33 @@ public class DeaconService extends DeaconObservable {
 	 * @param String chan The channel name on the Meteor server
 	 */
 	public synchronized void leaveChannel(String chan) {
-		this.subscriptions.remove(chan);
+		for(Subscription sub : subscriptions){
+			if(sub.channel.equals(chan)) {
+				this.subscriptions.remove(sub);
+			}
+		}
 	}
 	
 	/**
 	 * Initiates the connection with the Meteor server
 	 */
 	public void start(){
-		running = true;
-		if (!deaconThread.isAlive()){
-			deaconThread.start();
+		if((deaconThread != null && deaconThread.isAlive()) || running) return;	// TODO this is hackish; should throw an exception
+		// Check to see if a timeout is set and it is expired
+		if((this.catchUpTimeOut != 0) && (this.lastStop != 0)) {
+			// Deacon is "resuming" from a previous stop
+			long timedelta = System.currentTimeMillis() - lastStop;
+			if (timedelta > (((long)this.catchUpTimeOut) * 1000)) {
+				// We're past the timeout; zero the catchup parameters of all subscriptions
+				for(Subscription sub : subscriptions) {
+					sub.catchup = 0;
+				}
+			}
 		}
-		
+		// Start the client
+		running = true;
+		deaconThread = new Thread(new DeaconRunnable());
+		deaconThread.start();
 	}
 	
 	/**
@@ -156,6 +210,11 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public void stop(){
 		running = false;
+		// Set up each subscription to automatically catch itself up if Deacon is restarted
+		for(Subscription sub : this.subscriptions) {
+			sub.catchup = sub.lastMessageReceived + 1;
+		}
+		this.lastStop = System.currentTimeMillis();
 	}
 	
 	/**
@@ -205,6 +264,12 @@ public class DeaconService extends DeaconObservable {
 //						System.out.println("  Channel    = " + parameters.group(2));
 //						System.out.println("  Message    = " + parameters.group(3));
 						notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
+						for(Subscription sub : subscriptions) {
+							if(sub.channel.equals(parameters.group(2))) {
+								sub.lastMessageReceived = Integer.parseInt(parameters.group(1));
+								System.out.println(sub.toString());
+							}
+						}
 					}
 				}
 				pass++;
