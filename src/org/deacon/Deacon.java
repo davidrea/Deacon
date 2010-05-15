@@ -3,8 +3,12 @@ package org.deacon;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 /**
  * @author dave
@@ -21,7 +25,26 @@ public class Deacon extends DeaconService {
 			parse((String)msg.obj);
 		}
 	};
+	
+	/**
+	 * BroadcastReceiver for receiving CONNECTIVITY_ACTIONs
+	 * We can detect changes in network state instead of polling....
+	 * http://stackoverflow.com/questions/2294971/intent-action-for-network-events-in-android-sdk
+	 */
+	BroadcastReceiver bcr = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d("Deacon","Intent Received");
+			if (intent.getAction().equals(android.net.ConnectivityManager.CONNECTIVITY_ACTION)) {
+				Log.d(Deacon.class.getSimpleName(), "action: " + intent.getAction());
+				
+		    }
 
+			
+		}
+	};
+	
 	/**
 	 * @param host The Meteor server to which this client should connect
 	 * @param port The client port that the Meteor server is listening on (default is usually 4670) 
