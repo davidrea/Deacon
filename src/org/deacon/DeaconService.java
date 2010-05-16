@@ -56,7 +56,6 @@ public class DeaconService extends DeaconObservable {
 					sock = new Socket(host, port);
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
-					//System.out.println("-");
 					if(error){
 						notifyObserversReconnect();
 						error = false;
