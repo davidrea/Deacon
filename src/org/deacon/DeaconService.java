@@ -19,7 +19,7 @@ public class DeaconService extends DeaconObservable {
 		public String channel="";
 		public int backtrack=0;
 		public int lastMessageReceived=0;
-		public int catchup=0;
+		public int catchup = 0;
 		
 		public String toString() {
 			return "SUB{chan="+channel+"/backtrack="+backtrack+"/LMR="+lastMessageReceived+"}";
@@ -211,7 +211,9 @@ public class DeaconService extends DeaconObservable {
 		running = false;
 		// Set up each subscription to automatically catch itself up if Deacon is restarted
 		for(Subscription sub : this.subscriptions) {
-			sub.catchup = sub.lastMessageReceived + 1;
+			if(sub.lastMessageReceived != 0) {
+				sub.catchup = sub.lastMessageReceived + 1;
+			}
 		}
 		this.lastStop = System.currentTimeMillis();
 	}
