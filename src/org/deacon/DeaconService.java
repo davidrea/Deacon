@@ -26,10 +26,12 @@ public class DeaconService extends DeaconObservable {
 		}
 	}
 
+	/**
+	 * Member attributes
+	 */
 	private final String host;
 	private final int port;
 	private final long hostid;
-	
 	private ArrayList<Subscription> subscriptions;
 	private Socket sock = null;
 	private PrintWriter out = null;
@@ -38,7 +40,6 @@ public class DeaconService extends DeaconObservable {
 	private boolean error   = false;
 	private int catchUpTimeOut = 0;
 	private long lastStop = 0;
-	
 	private Thread deaconThread = null;
 	
 	/**
@@ -116,7 +117,7 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	/**
-	 * DeaconService class constructor
+	 * Creates a new DeaconService
 	 * @param String host Meteor server to which this client should connect
 	 * @param int port TCP port on Meteor server that is awaiting connections
 	 * @throws UnknownHostException if host is unreachable
@@ -149,8 +150,8 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	/**
-	 * Called when a new line is received from the Meteor server; enables standalone testing
-	 * Overridden by Android-specific wrapper class
+	 * Called when a new line is received from the Meteor server; enables standalone testing.
+	 * Intended to b overridden by Deacon wrapper class with thread-safe communication mechanism within Android.
 	 * @param line The received line to be parsed
 	 */
 	protected void socketLine(String line) {
@@ -159,8 +160,8 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Adds a subscription in the DeaconService to the specified Meteor server channel
-	 * @param String chan The channel name on the Meteor server
-	 * @param int backtrack The number of previously-pushed messages to request upon susbcribing
+	 * @param chan The channel name on the Meteor server
+	 * @param backtrack The number of previously-pushed messages to retrieve upon subscribing
 	 */
 	public synchronized void joinChannel(String chan, int backtrack){
 		System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
@@ -171,8 +172,8 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	/**
-	 * Unsubscribes this DeaconService from the Meteor channel; Takes effect after the present polling interval terminates.
-	 * @param String chan The channel name on the Meteor server
+	 * Unsubscribes this DeaconService from the specified Meteor channel; Takes effect after the present polling interval terminates.
+	 * @param chan The channel name on the Meteor server
 	 */
 	public synchronized void leaveChannel(String chan) {
 		for(Subscription sub : subscriptions){
@@ -183,7 +184,7 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	/**
-	 * Initiates the connection with the Meteor server
+	 * Initiates or re-opens the connection with the Meteor server
 	 */
 	public void start(){
 		if((deaconThread != null && deaconThread.isAlive()) || running) return;	// TODO this is hackish; should throw an exception
@@ -236,27 +237,25 @@ public class DeaconService extends DeaconObservable {
 	/**
 	 * Parses incoming Meteor commands (in the form of messages returned from the server) and acts on them
 	 * 
-	 * In lieu of outside protocol documentation, Meteor message format is captured here:
+	 * <!--In lieu of outside protocol documentation, Meteor message format is captured here:
 	 * 		HeaderTemplate HTTP/1.1 ~status~\r\nChannel(~channelinfo~)\r\n
 	 * 		MessageTemplate m.p.<~id~>."~channel~"."{[~text~]}"\r\n
 	 * 		ChannelInfoTemplate "~channel~".~lastMsgID~
 	 * 		PingMessage m.p
-	 * 		SubscriberShutdownMsg m.sd
-	 * TODO - details of the Deacon-specific Meteor configuration should be moved into the Deacon Wiki
+	 * 		SubscriberShutdownMsg m.sd -->
+	 * <p>TODO - details of the Deacon-specific Meteor configuration should be moved into the Deacon Wiki
 	 * 
-	 * @param meteorMessage
+	 * @param meteorMessage The string received from the Meteor server, to be parsed
 	 */
 	protected synchronized void parse(String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
-//		System.out.println("DeaconService.parse: Got meteorMessage="+meteorMessage);
 		Pattern p = Pattern.compile("m\\.(.*)");
 		Matcher m = p.matcher(meteorMessage);
 		int pass = 0;
 		if(m.find()) {
 			while(pass<=m.groupCount()) {
 				String thisgroup = m.group(pass).trim();
-//				System.out.println("DeaconService.parse: got group="+thisgroup);
 				if(thisgroup.split("\\.")[0].equals("p")) {
 					Pattern message = Pattern.compile("p\\.<(\\d*)>\\.\"(.*)\"\\.\"\\{\\[(.*)\\]\\}\"");
 					Matcher parameters = message.matcher(thisgroup);

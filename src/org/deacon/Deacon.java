@@ -16,14 +16,16 @@ import android.os.Message;
 import android.util.Log;
 
 /**
- * @author dave
- * 
- * Deacon class
- * A thin wrapper around DeaconService which isolates Android-specific code to maintain standalone testability of the DeaconService class.
- *
+ * <p><strong>Deacon</strong> is the main client class for receiving Meteor push notifications on Android devices.
+ * <p>Deacon is a thin wrapper around DeaconService which isolates Android-specific code to maintain standalone testability of the DeaconService class.
+ * Instantiate a Deacon object within an Android app to create a new push notifications client.</p>
  */
 public class Deacon extends DeaconService {
 
+	/**
+	 * Message handler used to pass received server strings from the Deacon thread (in DeaconService) to the parse() method.
+	 * This is necessary in order to provide inter-thread communications within the Android environment.
+	 */
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(final Message msg) {
@@ -36,7 +38,7 @@ public class Deacon extends DeaconService {
 	 * We can detect changes in network state instead of polling....
 	 * http://stackoverflow.com/questions/2294971/intent-action-for-network-events-in-android-sdk
 	 */
-	BroadcastReceiver bcr = new BroadcastReceiver() {
+	private BroadcastReceiver bcr = new BroadcastReceiver() {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
