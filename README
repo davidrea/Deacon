@@ -11,9 +11,7 @@
       .---.   `------------------------------------   `.---.              
     `//////:` `///////////////////////////////////:  .//////:             
     -///////. `///////////////////////////////////:  :///////`            
-    -///////. `///////////////////////////////////:  :///////`            
-    -///////. `///////////////////////////////////:  :///////`            
-    -///////. `///////////////////////////////////:  :///////`
+    -///////. `///////////////////////////////////:  :///////`     
     
 8888888b.  8888888888        d8888  .d8888b.   .d88888b.  888b    888 
 888  "Y88b 888              d88888 d88P  Y88b d88P" "Y88b 8888b   888 
@@ -29,12 +27,16 @@
 The Deacon Project aims to produce an open-source push notifications library for the Android platform. "Deacon" is a Java class library used by Android developers to receive Push notifications from a Meteor comet web server. "Deacon-Test" (http://github.com/davidrea/Deacon-Test/) is an Android app that is used for testing and demonstration of Deacon, and is also developed by members of the Deacon project.
 
 For more information see:
-http://deacon.daverea.com/
+http://www.deaconproject.org/
 http://github.com/davidrea/Deacon
 http://wiki.github.com/davidrea/Deacon/
 http://www.meteorserver.org/
 
-=== CONFIGURATION ===
+=== API DOCUMENTATION ===
+
+Javadocs for Deacon can be found in doc/apiref/
+
+=== ECLIPSE CONFIGURATION ===
 
 To develop or test Deacon in Eclipse:
 
@@ -44,6 +46,6 @@ To develop or test Deacon in Eclipse:
 3) Right click on the Deacon Eclipse project and configure the build path
 4) Click "Add External Jar..." and select the android.jar file from the appropriate Android platform directory
 
-=== CREDITS ===
+=== SUPPORT ===
 
-Deacon ASCII text generated at: http://patorjk.com/software/taag/
+If you need help with Deacon, or would like to contribute to the project, please visit the project mailing list at http://www.deaconproject.org/mailing-list/

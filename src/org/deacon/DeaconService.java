@@ -1,3 +1,21 @@
+/*
+ * COPYRIGHT (c) 2010 The Members of the Deacon Project <http://deacon.daverea.com/core-team/>
+ * 
+ * This file is part of Deacon
+ * 
+ * Deacon is free software: you can redistribute it and/or modify it under the terms of the GNU 
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 
+ * of the License, or (at your option) any later version.
+ * 
+ * Deacon is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License and the GNU Lesser General 
+ * Public License along with Deacon.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package org.deacon;
 
 import java.io.BufferedReader;
@@ -10,6 +28,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Implements the core operation of the Deacon Meteor client. 
+ */
 public class DeaconService extends DeaconObservable {
 	
 	/**
@@ -118,8 +139,8 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Creates a new DeaconService
-	 * @param String host Meteor server to which this client should connect
-	 * @param int port TCP port on Meteor server that is awaiting connections
+	 * @param host Meteor server to which this client should connect
+	 * @param port TCP port on Meteor server that is awaiting connections
 	 * @throws UnknownHostException if host is unreachable
 	 * @throws IOException if connection cannot be established
 	 */
@@ -143,7 +164,7 @@ public class DeaconService extends DeaconObservable {
 	 * Get the timeout after which Deacon will no longer try to retrieve pushes missed while shut down
 	 * (This applies to all subscriptions)
 	 * Will return "0" if no timeout.
-	 * @return
+	 * @return the currently-configured timeout in seconds, or 0 if catchup is disabled
 	 */
 	public int catchUpTimeOut() {
 		return catchUpTimeOut;

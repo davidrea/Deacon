@@ -1,0 +1,44 @@
+<html><body><h1>Welcome to Deacon!</h1>
+<p><strong>Deacon</strong> is a push notifications library intended for use on Android devices, but which is also usable in pure-Java form. Deacon is free and open-source software, and is produced by the members of <a href="http://www.deaconproject.org/">The Deacon Project</a>.</p>
+<p>Deacon can be used in two "modes", pure-Java and Android. Each is detailed below.</p>
+<h2>Using Deacon in Android Apps</h2>
+
+<p>You can integrate Deacon into your Android app or service by creating a new Deacon object, configuring it, then subscribing the object's context to receive callbacks when push notifications are received.</p>
+
+<ul>
+	<li>The Activity or Service that receives callbacks from your Deacon object must implement the DeaconServiceObserver interface.
+	<li>Deacon's Android integration automatically takes care of caling Deacon.stop() and Deacon.start() on any changes in network connectivity.</li>
+	<li>Deacon requires the following permissions be set in your AndroidManifest.xml file:
+	<ul>
+		<li><code>uses-permission android:name="android.permission.INTERNET"</code>  
+		<li><code>uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"</code>
+	</ul></li>
+</ul>
+
+<ol>
+	<li>Ensure the Deacon source or JAR file is on your project's build path.</li>
+	<li>Instantiate a Deacon object from within your Android Activity or Service:
+	<br><code>Deacon myDeacon = new Deacon("data.myserver.com", 4670, this);</code></li>
+	
+	<li>Configure the Deacon object:
+	<br><code>myDeacon.joinChannel("channelname", 0);</code></li>
+	
+	<li>Register your context with Deacon to receive callbacks:
+	<br><code>myDeacon.register(this);</code></li>
+	
+	<li>Start the Deacon service:
+	<br><code>myDeacon.start();</code></li>
+</ol>
+<h2>Using Deacon in Java programs</h2>
+
+<p>Using Deacon in pure-Java is just like using it in Android, except that instead of instantiating <code>Deacon</code>, you instantiate its parent class, <code>DeaconService</code>. The configuration is the same, but the instantiating context is not required when you make a new DeaconService, and you must start and stop the service. 
+
+<h2>Other configuration and features...</h2>
+
+<ul>
+<li>You can subscribe to multiple channels; the DeaconResponse objects you get back on incoming push notifications contain both <code>channel</code> and <code>payload</code> members. Thus, your onPush method will need to separate out the pushes based on channel the same way you might detect and separate button pushes in an <code>onClick(View view)</code> method in Android.</li>
+<li>You can specify a <em>backtrack</em> when you subscribe to a channel; this is a one-time retrieval of a set number of messages that were pushed prior to your subscription.</li>
+<li>You can specify a <em>catchUpTimeOut</em> for each <code>Deacon</code> or <code>DeaconService</code> object you instantiate. If Deacon is stopped <u>while running</u> (for example due to a momentary interruption in network connectivity on Android), it will automatically retrieve missed push notifications from the Meteor server, as long as the catchUpTimeOut has not expired. For example, setting a catchUpTimeOut interval of 60 will attempt to catch up all subscribed channels as long as the service is restarted within 60 seconds of stopping.</li> 
+</ul>
+
+</body></html>
