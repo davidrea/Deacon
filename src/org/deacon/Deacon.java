@@ -2,6 +2,7 @@ package org.deacon;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -42,18 +44,28 @@ public class Deacon extends DeaconService {
 			Log.d("Deacon","Intent Received");
 			if (intent.getAction().equals(android.net.ConnectivityManager.CONNECTIVITY_ACTION)) {
 				Log.d(Deacon.class.getSimpleName(), "action: " + intent.getAction());
-				ConnectivityManager connman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo netinfo = connman.getActiveNetworkInfo();
-				if (netinfo != null){//seems if network is disconnected, netinfo is null?
-					if (netinfo.isConnected()){
+				Bundle extras = intent.getExtras();
+				Set<String> keys = extras.keySet();
+				for(String key : keys) {
+					System.out.println("Got key: " + key +  ", with value = " + extras.get(key));
+				}
+				if(extras.containsKey("networkInfo")) {
+					NetworkInfo netinfo = (NetworkInfo) extras.get("networkInfo");
+					if(netinfo.isConnected()) {
 						Log.d("Deacon","Network has connection!");
+						start();
 					}
-					else{
-						Log.d("Deacon","Network is disconnected!");//Not sure this will ever happen...
+					else {
+						Log.d("Deacon","Network is disconnected!");
+						stop();
 					}
 				}
-				else{
+				else if(extras.containsKey("noConnectivity")) {
 					Log.d("Deacon","Network is disconnected!");
+					stop();
+				}
+				else {
+					Log.d("Deacon", "Received CONNECTIVITY_ACTION intent but no networkInfo or noConnectivty extra data");
 				}
 		    }
 
