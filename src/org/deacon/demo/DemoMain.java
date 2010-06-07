@@ -36,28 +36,34 @@ public class DemoMain implements DeaconServiceObserver{
 	public boolean error = false;
 	
 	public void run() throws UnknownHostException, IOException {
-		//DeaconService myService = new DeaconService("data.meteorserver.org",80);
-//		DeaconService myService = new DeaconService("home2.daverea.com",4670);
-		DeaconService myService = new DeaconService("home.daverea.com",4670);
-		myService.joinChannel("2sec", 0);
-		
-		myService.register(this);
-		
-		System.out.println("Starting Deacon Service for: "+myService.toString());
-		myService.start();
+		DeaconService myService;
 		try {
-			Thread.sleep(15*1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if(!error){
-			System.out.println("Stopping Deacon Service");
-			myService.stop();
-		}
-		else{
-			System.out.println("Oops, there was an error. Move along, nothing to see...");
+			myService = new DeaconService("home.daverea.com",4670);
+			myService.joinChannel("2sec", 0);			
+			myService.register(this);
+			
+			try {
+				System.out.println("Starting: " + myService.toString());
+				myService.start();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
+			try {
+				Thread.sleep(15*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			if(!error){
+				System.out.println("Stopping Deacon Service");
+				myService.stop();
+			}
+			else{
+				System.out.println("Oops, there was an error. Move along, nothing to see...");
+			}
+		} catch (Exception e2) {
+			System.out.println("Attempted to start DeaconService with invalid port number.");
 		}
 	}
 

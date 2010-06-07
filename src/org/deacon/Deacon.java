@@ -72,7 +72,11 @@ public class Deacon extends DeaconService {
 					NetworkInfo netinfo = (NetworkInfo) extras.get("networkInfo");
 					if(netinfo.isConnected()) {
 						Log.d("Deacon","Network has connection!");
-						start();
+						try {
+							start();
+						} catch (Exception e) {
+							System.out.println("Deacon tried to start an already-running DeaconService");
+						}
 					}
 					else {
 						Log.d("Deacon","Network is disconnected!");
@@ -104,11 +108,12 @@ public class Deacon extends DeaconService {
 	/**
 	 * @param host The Meteor server to which this client should connect
 	 * @param port The client port that the Meteor server is listening on (default is usually 4670) 
-	 * @param activity The activity that creates this class. Used to register an IntentFilter.//Not a great idea...
-	 * @throws UnknownHostException
-	 * @throws IOException
+	 * @param activity The activity that creates this class. Used to register an IntentFilter. // TODO Shouldn't register IntentFilter using context class?
+	 * @throws UnknownHostException if host is unreachable
+	 * @throws IOException if connection cannot be established
+	 * @throws Exception if port value is invalid
 	 */
-	public Deacon(String host, int port, Activity activity) throws UnknownHostException, IOException {
+	public Deacon(String host, int port, Activity activity) throws UnknownHostException, IOException, Exception {
 		super(host, port);
 		activity.registerReceiver(this.getBroadcastReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 		

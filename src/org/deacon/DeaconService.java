@@ -143,8 +143,11 @@ public class DeaconService extends DeaconObservable {
 	 * @param port TCP port on Meteor server that is awaiting connections
 	 * @throws UnknownHostException if host is unreachable
 	 * @throws IOException if connection cannot be established
+	 * @throws Exception if port value is invalid
 	 */
-	public DeaconService(String host, int port) throws UnknownHostException, IOException{
+	public DeaconService(String host, int port) throws UnknownHostException, IOException, Exception{
+		// Bounds-check port; should be positive integer
+		if(port < 0) throw new Exception("Cannot instantiate Deacon with negative port value.");
 		this.host = host;
 		this.port = port;
 		this.hostid = System.currentTimeMillis();
@@ -156,8 +159,8 @@ public class DeaconService extends DeaconObservable {
 	 * (This applies to all subscriptions)
 	 * @param seconds The timeout in seconds (0 = no timeout)
 	 */
-	public void catchUpTimeOut(int seconds) {
-		this.catchUpTimeOut = seconds;
+	public void catchUpTimeOut(final int seconds) {
+		this.catchUpTimeOut = (seconds > 0) ? seconds : 0;	// Should be positive or zero
 	}
 	
 	/**
@@ -175,7 +178,7 @@ public class DeaconService extends DeaconObservable {
 	 * Intended to b overridden by Deacon wrapper class with thread-safe communication mechanism within Android.
 	 * @param line The received line to be parsed
 	 */
-	protected void socketLine(String line) {
+	protected void socketLine(final String line) {
 		parse(line);
 	}
 	
@@ -184,7 +187,10 @@ public class DeaconService extends DeaconObservable {
 	 * @param chan The channel name on the Meteor server
 	 * @param backtrack The number of previously-pushed messages to retrieve upon subscribing
 	 */
-	public synchronized void joinChannel(String chan, int backtrack){
+	public synchronized void joinChannel(final String chan, int backtrack){
+		// Bounds-check backtrack; should be positive integer
+		if(backtrack < 0) backtrack = 0;
+		
 		System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
 		Subscription sub = new Subscription();
 		sub.channel = chan;
@@ -196,7 +202,7 @@ public class DeaconService extends DeaconObservable {
 	 * Unsubscribes this DeaconService from the specified Meteor channel; Takes effect after the present polling interval terminates.
 	 * @param chan The channel name on the Meteor server
 	 */
-	public synchronized void leaveChannel(String chan) {
+	public synchronized void leaveChannel(final String chan) {
 		for(Subscription sub : subscriptions){
 			if(sub.channel.equals(chan)) {
 				this.subscriptions.remove(sub);
@@ -206,9 +212,12 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Initiates or re-opens the connection with the Meteor server
+	 * @throws Exception if Deacon is already running when the start() method is called
 	 */
-	public void start(){
-		if((deaconThread != null && deaconThread.isAlive()) || running) return;	// TODO this is hackish; should throw an exception
+	public void start() throws Exception{
+		if((deaconThread != null && deaconThread.isAlive()) || running) {
+			throw new Exception("Deacon is already running!");
+		}
 		// Check to see if a timeout is set and it is expired
 		if((this.catchUpTimeOut != 0) && (this.lastStop != 0)) {
 			// Deacon is "resuming" from a previous stop
@@ -268,7 +277,7 @@ public class DeaconService extends DeaconObservable {
 	 * 
 	 * @param meteorMessage The string received from the Meteor server, to be parsed
 	 */
-	protected synchronized void parse(String meteorMessage) {
+	protected synchronized void parse(final String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
 		Pattern p = Pattern.compile("m\\.(.*)");

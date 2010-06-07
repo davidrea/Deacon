@@ -36,45 +36,57 @@ public class DemoMainCatchup implements DeaconServiceObserver{
 	public boolean error = false;
 	
 	public void run() throws UnknownHostException, IOException {
-		DeaconService myService = new DeaconService("home.daverea.com",4670);
-		myService.joinChannel("2sec", 3);
-		
-		myService.register(this);
-		myService.catchUpTimeOut(10);
-		
-		// Start Deacon
-		System.out.println("Starting Deacon Service for: "+myService.toString());
-		myService.start();
+		DeaconService myService;
 		try {
-			Thread.sleep(5*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		// Stop Deacon
-		System.out.println("Stopping Deacon");
-		myService.stop();
-		try {
-			Thread.sleep(5*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		// Restart Deacon
-		System.out.println("Restarting Deacon");
-		myService.start();
-		try {
-			Thread.sleep(5*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		if(!error){
-			System.out.println("Stopping Deacon Service");
+			myService = new DeaconService("home.daverea.com",4670);
+			myService.joinChannel("2sec", 3);
+			myService.register(this);
+			myService.catchUpTimeOut(10);
+			
+			// Start Deacon
+			System.out.println("Starting Deacon Service for: "+myService.toString());
+			try {
+				myService.start();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			try {
+				Thread.sleep(5*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			// Stop Deacon
+			System.out.println("Stopping Deacon");
 			myService.stop();
-		}
-		else{
-			System.out.println("Oops, there was an error. Move along, nothing to see...");
+			try {
+				Thread.sleep(5*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			// Restart Deacon
+			System.out.println("Restarting Deacon");
+			try {
+				myService.start();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			try {
+				Thread.sleep(5*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			if(!error){
+				System.out.println("Stopping Deacon Service");
+				myService.stop();
+			}
+			else{
+				System.out.println("Oops, there was an error. Move along, nothing to see...");
+			}
+		} catch (Exception e2) {
+			System.out.println("Attempted to start DeaconService with invalid port number.");
 		}
 	}
 
