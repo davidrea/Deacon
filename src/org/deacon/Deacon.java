@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Set;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +39,8 @@ import android.util.Log;
  */
 public class Deacon extends DeaconService {
 
+	Context parent = null;
+	
 	/**
 	 * Message handler used to pass received server strings from the Deacon thread (in DeaconService) to the parse() method.
 	 * This is necessary in order to provide inter-thread communications within the Android environment.
@@ -91,14 +92,12 @@ public class Deacon extends DeaconService {
 					Log.d("Deacon", "Received CONNECTIVITY_ACTION intent but no networkInfo or noConnectivty extra data");
 				}
 		    }
-
-			
 		}
 	};
 	
 	/**
 	 * Method to return the broadcast receiver, you must register 
-	 * this BroadcastReceiver from an Activity.
+	 * this BroadcastReceiver from the Context.
 	 */
 	public BroadcastReceiver getBroadcastReceiver(){
 		return bcr;
@@ -108,15 +107,24 @@ public class Deacon extends DeaconService {
 	/**
 	 * @param host The Meteor server to which this client should connect
 	 * @param port The client port that the Meteor server is listening on (default is usually 4670) 
-	 * @param activity The activity that creates this class. Used to register an IntentFilter. // TODO Shouldn't register IntentFilter using context class?
+	 * @param context The activity that creates this class. Used to register an IntentFilter. // TODO Shouldn't register IntentFilter using context class?
 	 * @throws UnknownHostException if host is unreachable
 	 * @throws IOException if connection cannot be established
 	 * @throws Exception if port value is invalid
 	 */
-	public Deacon(String host, int port, Activity activity) throws UnknownHostException, IOException, Exception {
+	public Deacon(String host, int port, Context context) throws UnknownHostException, IOException, Exception {
 		super(host, port);
-		activity.registerReceiver(this.getBroadcastReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-		
+		this.parent = context;
+		this.parent.registerReceiver(this.getBroadcastReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+	}
+	
+	/**
+	 * Called by GC when Deacon object is GC'd. Should be called by application context before Android onDestroy method returns.
+	 */
+	protected void finalize() {
+		System.out.println("Shutting down, destroying Deacon object.");
+		stop();
+		this.parent.unregisterReceiver(bcr);
 	}
 	
 	/**
