@@ -1,9 +1,0 @@
-DEACON - A Java Push Notification Library for Android (and beyond) 
-
-=== WHAT'S HERE ===
-
-org.deacon ................. The core source code of the Deacon library.
-
-org.deacon.demo ............ Demonstration code that exercises the pure-Java portions of the Deacon library
-
-org.deacon.interfaces ...... Interface definitions used by both the Deacon library and software that uses it
