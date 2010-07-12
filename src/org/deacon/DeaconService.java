@@ -104,7 +104,7 @@ public class DeaconService extends DeaconObservable {
 							sub.backtrack = 0;
 						}
 						else if(sub.catchup > 0 && running) {
-							System.out.println("Found catchup="+sub.catchup+" for chan="+sub.channel);
+							// System.out.println("Found catchup="+sub.catchup+" for chan="+sub.channel);
 							serverstring += ".r" + sub.catchup;
 							// Catchup retrieval is one-time-only; reset to zero after catchup request made
 							sub.catchup = 0;
@@ -118,7 +118,7 @@ public class DeaconService extends DeaconObservable {
 					try {
 						// Wait for a response from the channel
 						while( (response=in.readLine()) != null && running) {
-	//						System.out.println("Got response: " + response);
+							//System.out.println("Got response: " + response);
 							socketLine(response);
 						}
 						out.close();
@@ -175,7 +175,7 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Called when a new line is received from the Meteor server; enables standalone testing.
-	 * Intended to b overridden by Deacon wrapper class with thread-safe communication mechanism within Android.
+	 * Intended to be overridden by Deacon wrapper class with thread-safe communication mechanism within Android.
 	 * @param line The received line to be parsed
 	 */
 	protected void socketLine(final String line) {
@@ -191,7 +191,7 @@ public class DeaconService extends DeaconObservable {
 		// Bounds-check backtrack; should be positive integer
 		if(backtrack < 0) backtrack = 0;
 		
-		System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
+		//System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
 		Subscription sub = new Subscription();
 		sub.channel = chan;
 		sub.backtrack = backtrack;
@@ -230,7 +230,7 @@ public class DeaconService extends DeaconObservable {
 			}
 		}
 		// Start the client
-		running = true;
+		this.running = true;
 		deaconThread = new Thread(new DeaconRunnable());
 		deaconThread.start();
 	}
@@ -239,7 +239,7 @@ public class DeaconService extends DeaconObservable {
 	 * Closes the connection to the Meteor server; Takes effect after the present polling interval terminates.
 	 */
 	public void stop(){
-		running = false;
+		this.running = false;
 		// Set up each subscription to automatically catch itself up if Deacon is restarted
 		for(Subscription sub : this.subscriptions) {
 			if(sub.lastMessageReceived != 0) {
@@ -253,7 +253,7 @@ public class DeaconService extends DeaconObservable {
 	 * Returns a description of the DeaconService
 	 */
 	public String toString(){
-		return "Deacon Service @" + host + ":" + port;
+		return "Deacon @ " + host + ":" + port;
 	}
 
 	/**
@@ -280,24 +280,28 @@ public class DeaconService extends DeaconObservable {
 	protected synchronized void parse(final String meteorMessage) {
 		// TODO This is probably well-suited to a command pattern
 		// Tried to implement this but figured we should get it working for POC first, then refactor
+		// Regex match "m.*" portion of message
 		Pattern p = Pattern.compile("m\\.(.*)");
 		Matcher m = p.matcher(meteorMessage);
 		int pass = 0;
 		if(m.find()) {
 			while(pass<=m.groupCount()) {
+				// Split match push notification messages
 				String thisgroup = m.group(pass).trim();
 				if(thisgroup.split("\\.")[0].equals("p")) {
+					// Regex extract channel and payload
 					Pattern message = Pattern.compile("p\\.<(\\d*)>\\.\"(.*)\"\\.\"\\{\\[(.*)\\]\\}\"");
 					Matcher parameters = message.matcher(thisgroup);
 					if(parameters.find()) {
-//						System.out.println("  Message ID = " + parameters.group(1));
-//						System.out.println("  Channel    = " + parameters.group(2));
-//						System.out.println("  Message    = " + parameters.group(3));
+						// Create DeaconResponse object for parsed push notification
+						// TODO Pull parameters out into final local variables
+						// TODO Assumes Meteor will only push from subscribed channels; should check incoming messages against subscription list
 						notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
+						// Update serial numbers of last messages received in subscription list (for catchup)
 						for(Subscription sub : subscriptions) {
 							if(sub.channel.equals(parameters.group(2))) {
 								sub.lastMessageReceived = Integer.parseInt(parameters.group(1));
-								System.out.println(sub.toString());
+								//System.out.println(sub.toString());
 							}
 						}
 					}

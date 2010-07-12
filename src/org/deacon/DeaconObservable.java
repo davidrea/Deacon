@@ -20,34 +20,33 @@ package org.deacon;
 
 import java.util.ArrayList;
 
-import org.deacon.interfaces.DeaconServiceObserver;
 
 public class DeaconObservable {
 
-	private ArrayList<DeaconServiceObserver> observers = new ArrayList<DeaconServiceObserver>();
+	private ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
 	
-	public void register(DeaconServiceObserver observer){
+	public void register(DeaconObserver observer){
 		observers.add(observer);
 	}
 	
-	public void unregister(DeaconServiceObserver observer){
+	public void unregister(DeaconObserver observer){
 		observers.remove(observer);
 	}
 	
 	public void notifyObservers(DeaconResponse response){
-		for (DeaconServiceObserver obs: observers){
+		for (DeaconObserver obs: observers){
 			obs.onPush(response);
 		}
 	}
 	
 	public void notifyObserversError(DeaconError err){
-		for (DeaconServiceObserver obs: observers){
+		for (DeaconObserver obs: observers){
 			obs.onError(err);
 		}
 	}
 	
 	public void notifyObserversReconnect(){
-		for (DeaconServiceObserver obs: observers){
+		for (DeaconObserver obs: observers){
 			obs.onReconnect();
 		}
 	}

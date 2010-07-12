@@ -22,11 +22,11 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.deacon.DeaconError;
+import org.deacon.DeaconObserver;
 import org.deacon.DeaconResponse;
 import org.deacon.DeaconService;
-import org.deacon.interfaces.DeaconServiceObserver;
 
-public class DemoMain implements DeaconServiceObserver{
+public class DemoMain implements DeaconObserver{
 	
 	public static void main(String args[]) throws UnknownHostException, IOException {
 		DemoMain testMain = new DemoMain();

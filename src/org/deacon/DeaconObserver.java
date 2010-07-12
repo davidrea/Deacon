@@ -16,12 +16,10 @@
  * 
  */
 
-package org.deacon.interfaces;
+package org.deacon;
 
-import org.deacon.DeaconError;
-import org.deacon.DeaconResponse;
 
-public interface DeaconServiceObserver {
+public interface DeaconObserver {
 
 	public void onPush(DeaconResponse response);
 	
