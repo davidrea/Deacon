@@ -1,0 +1,16 @@
+DEACON - A Java Push Notification Library for Android (and beyond) 
+
+=== WHAT'S HERE ===
+
+DeaconServiceTest.java .... JUnit test class that exercises DeaconService 
+							class and some others
+
+=== HOW TO TEST ===
+
+The JUnit Test Cases in this package can be run in a pure Java environment; an 
+Android environment is not necessary.
+
+As a consequence, only the pure Java portions of Deacon are tested by these 
+tests. The Android wrapper portions are tested using the Android testing tools 
+provided in the Android SDK. These tests are [will be] implemented in a 
+separate test project that runs against the Deacon Demo application. 

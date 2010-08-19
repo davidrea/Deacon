@@ -54,11 +54,7 @@ public class DeaconService extends DeaconObservable {
 	private final int port;
 	private final long hostid;
 	private ArrayList<Subscription> subscriptions;
-	private Socket sock = null;
-	private PrintWriter out = null;
-	private BufferedReader in = null;
 	private boolean running = false;
-	private boolean error   = false;
 	private Integer catchUpTimeOut = 0;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
@@ -68,6 +64,11 @@ public class DeaconService extends DeaconObservable {
 	 * this runnable implements the server interaction mode
 	 */
 	private class DeaconRunnable implements Runnable {
+		
+		private Socket sock = null;
+		private PrintWriter out = null;
+		private BufferedReader in = null;
+		private boolean error   = false;
 		
 		@Override
 		public void run() {
