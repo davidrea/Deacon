@@ -38,9 +38,9 @@ public class DeaconService extends DeaconObservable {
 	 */
 	private class Subscription {
 		public String channel="";
-		public int backtrack=0;
-		public int lastMessageReceived=0;
-		public int catchup = 0;
+		public Integer backtrack=0;
+		public Integer lastMessageReceived=0;
+		public Integer catchup = 0;
 		
 		public String toString() {
 			return "SUB{chan="+channel+"/backtrack="+backtrack+"/LMR="+lastMessageReceived+"}";
@@ -59,7 +59,7 @@ public class DeaconService extends DeaconObservable {
 	private BufferedReader in = null;
 	private boolean running = false;
 	private boolean error   = false;
-	private int catchUpTimeOut = 0;
+	private Integer catchUpTimeOut = 0;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
 	
@@ -145,7 +145,7 @@ public class DeaconService extends DeaconObservable {
 	 * @throws IOException if connection cannot be established
 	 * @throws Exception if port value is invalid
 	 */
-	public DeaconService(String host, int port) throws UnknownHostException, IOException, Exception{
+	public DeaconService(String host, Integer port) throws UnknownHostException, IOException, Exception{
 		// Bounds-check port; should be positive integer
 		if(port < 0) throw new Exception("Cannot instantiate Deacon with negative port value.");
 		this.host = host;
@@ -159,7 +159,7 @@ public class DeaconService extends DeaconObservable {
 	 * (This applies to all subscriptions)
 	 * @param seconds The timeout in seconds (0 = no timeout)
 	 */
-	public void catchUpTimeOut(final int seconds) {
+	public void catchUpTimeOut(final Integer seconds) {
 		this.catchUpTimeOut = (seconds > 0) ? seconds : 0;	// Should be positive or zero
 	}
 	
@@ -187,7 +187,7 @@ public class DeaconService extends DeaconObservable {
 	 * @param chan The channel name on the Meteor server
 	 * @param backtrack The number of previously-pushed messages to retrieve upon subscribing
 	 */
-	public synchronized void joinChannel(final String chan, int backtrack){
+	public synchronized void joinChannel(final String chan, Integer backtrack){
 		// Bounds-check backtrack; should be positive integer
 		if(backtrack < 0) backtrack = 0;
 		
@@ -196,6 +196,18 @@ public class DeaconService extends DeaconObservable {
 		sub.channel = chan;
 		sub.backtrack = backtrack;
 		this.subscriptions.add(sub);
+	}
+	
+	/**
+	 * Checks to see if the DeaconService is subscribed to the specified channel
+	 * @param chan The channel to check
+	 * @return a Boolean, true if the specified channel is subscribed
+	 */
+	public synchronized Boolean checkChannel(final String chan){
+		for(Subscription s : subscriptions){
+			if(s.channel.equals(chan)) return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -283,7 +295,7 @@ public class DeaconService extends DeaconObservable {
 		// Regex match "m.*" portion of message
 		Pattern p = Pattern.compile("m\\.(.*)");
 		Matcher m = p.matcher(meteorMessage);
-		int pass = 0;
+		Integer pass = 0;
 		if(m.find()) {
 			while(pass<=m.groupCount()) {
 				// Split match push notification messages

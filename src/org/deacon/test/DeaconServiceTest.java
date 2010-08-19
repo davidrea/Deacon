@@ -30,11 +30,13 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	}
 	
 	public void testJoinChannel() {
-		fail("Test not yet implemented");
+		assertTrue(this.testDeacon.checkChannel("testonly"));
+		assertTrue(this.testDeacon.checkChannel("2sec"));
 	}
 	
 	public void testLeaveChannel() {
-		fail("Test not yet implemented");
+		this.testDeacon.leaveChannel("testonly");
+		assertFalse(this.testDeacon.checkChannel("testonly"));
 	}
 	
 	public void testCatchUpTimeOut() {
@@ -59,6 +61,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 			}
 		}
 		
+		// Run the test
 		try {
 			parseTester tester = new parseTester(DeaconServiceTest.host, DeaconServiceTest.port);
 			tester.testParse("m.p.<12345>.\"channel\".\"{[Hello Test]}\"\r\n");
@@ -73,11 +76,37 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	}
 	
 	public void testStart() {
-		fail("Test not yet implemented");
+		this.response = null;
+		try {
+			this.testDeacon.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception caught: Could not start DeaconService");
+		}
+		assertTrue(this.testDeacon.isRunning());
+		try {
+			Thread.sleep(2100);
+			// TODO set up a higher-frequency channel on the test server to reduce test runtime
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			fail("Exception caught: could not sleep");
+		}
+		assertNotNull(this.response);
+		assertEquals(this.response.getChannel(), "2sec");
+		assertNotNull(this.response.getPayload());
 	}
 	
 	public void testStop() {
-		fail("Test not yet implemented");
+		this.testDeacon.stop();
+		assertFalse(this.testDeacon.isRunning());
+		this.response = null;
+		try {
+			Thread.sleep(2100);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+			fail("Exception caught: could not sleep");
+		}
+		assertNull(this.response);
 	}
 
 	@Override
@@ -89,6 +118,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	@Override
 	public void onPush(DeaconResponse response) {
 		// TODO Auto-generated method stub
+		System.out.println("Received push " + response.getPayload());
 		this.response = response;
 	}
 

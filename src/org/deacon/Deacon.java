@@ -112,7 +112,7 @@ public class Deacon extends DeaconService {
 	 * @throws IOException if connection cannot be established
 	 * @throws Exception if port value is invalid
 	 */
-	public Deacon(String host, int port, Context context) throws UnknownHostException, IOException, Exception {
+	public Deacon(String host, Integer port, Context context) throws UnknownHostException, IOException, Exception {
 		super(host, port);
 		this.parent = context;
 		this.parent.registerReceiver(this.getBroadcastReceiver(), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
