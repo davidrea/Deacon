@@ -27,6 +27,8 @@ To develop or test Deacon in Eclipse:
 2) Run the Android executable (in the tools/ directory) to install an Android platform (preferably the latest, 2.1)
 3) Right click on the Deacon Eclipse project and configure the build path
 4) Click "Add External Jar..." and select the android.jar file from the appropriate Android platform directory
+5) Click the "Add Library..." and add a JUnit library to the project.
+6) Ensure the JUnit library has higher precedence than the android.jar file.
 
 === SUPPORT ===
 

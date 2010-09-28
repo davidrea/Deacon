@@ -10,6 +10,16 @@ import org.deacon.DeaconResponse;
 
 import junit.framework.TestCase;
 
+/**
+ * Unit tests for the DeaconService class.
+ * <p><strong>NOTE:</strong> The JUnit library must have <em>higher
+ * precedence</em> on the classpath than android.jar, or all tests will fail 
+ * with a "Stub!" exception.</p>
+ * 
+ * @author dave
+ *
+ */
+
 public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	
 	private static final String host = "home.daverea.com";
@@ -85,7 +95,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		}
 		assertTrue(this.testDeacon.isRunning());
 		try {
-			Thread.sleep(2100);
+			Thread.sleep(2200);
 			// TODO set up a higher-frequency channel on the test server to reduce test runtime
 		} catch (InterruptedException e) {
 			e.printStackTrace();
