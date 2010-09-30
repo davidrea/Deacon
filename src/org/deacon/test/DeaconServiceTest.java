@@ -67,7 +67,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 				super.register(DeaconServiceTest.this);
 			}
 			public void testParse(String test) {
-				socketLine(test);
+				parse(test);
 			}
 		}
 		
@@ -95,7 +95,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		}
 		assertTrue(this.testDeacon.isRunning());
 		try {
-			Thread.sleep(2200);
+			Thread.sleep(2500);
 			// TODO set up a higher-frequency channel on the test server to reduce test runtime
 		} catch (InterruptedException e) {
 			e.printStackTrace();
