@@ -1,0 +1,6 @@
+The diagrams in this directory are created using the Umlet UML editor:
+http://www.umlet.com/
+
+After a diagram is updated, its raster image in the img/ directory must also be updated. This is done manually.
+The raster image is referenced by Deacon wiki pages, so the image must be exported before changes will appear in the Deacon wiki.
+The wiki automatically tracks the latest version of the image in the 'master' branch.
