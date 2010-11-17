@@ -120,7 +120,7 @@ public class DeaconService extends DeaconObservable {
 						// Wait for a response from the channel
 						while( (response=in.readLine()) != null && running) {
 							//System.out.println("Got response: " + response);
-							socketLine(response);
+							parse(response);
 						}
 						out.close();
 						in.close();
@@ -175,15 +175,6 @@ public class DeaconService extends DeaconObservable {
 	}
 	
 	/**
-	 * Called when a new line is received from the Meteor server; enables standalone testing.
-	 * Intended to be overridden by Deacon wrapper class with thread-safe communication mechanism within Android.
-	 * @param line The received line to be parsed
-	 */
-	protected void socketLine(final String line) {
-		parse(line);
-	}
-	
-	/**
 	 * Adds a subscription in the DeaconService to the specified Meteor server channel
 	 * @param chan The channel name on the Meteor server
 	 * @param backtrack The number of previously-pushed messages to retrieve upon subscribing
@@ -227,8 +218,8 @@ public class DeaconService extends DeaconObservable {
 	 * Initiates or re-opens the connection with the Meteor server
 	 * @throws Exception if Deacon is already running when the start() method is called
 	 */
-	public void start() throws Exception{
-		if((deaconThread != null && deaconThread.isAlive()) || running) {
+	public void start() throws Exception {
+		if(running == true) {
 			throw new Exception("Deacon is already running!");
 		}
 		// Check to see if a timeout is set and it is expired
