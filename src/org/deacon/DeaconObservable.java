@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class DeaconObservable {
 
-	private ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
+	protected ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
 	
 	public void register(DeaconObserver observer){
 		observers.add(observer);
@@ -33,19 +33,19 @@ public class DeaconObservable {
 		observers.remove(observer);
 	}
 	
-	public void notifyObservers(DeaconResponse response){
+	protected void notifyObservers(DeaconResponse response){
 		for (DeaconObserver obs: observers){
 			obs.onPush(response);
 		}
 	}
 	
-	public void notifyObserversError(DeaconError err){
+	protected void notifyObserversError(DeaconError err){
 		for (DeaconObserver obs: observers){
 			obs.onError(err);
 		}
 	}
 	
-	public void notifyObserversReconnect(){
+	protected void notifyObserversReconnect(){
 		for (DeaconObserver obs: observers){
 			obs.onReconnect();
 		}
