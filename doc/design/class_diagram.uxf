@@ -20,14 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>560</x><y>710</y><w>190</w><h>120</h></coordinates><panel_attributes>Deacon
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>480</x><y>630</y><w>190</w><h>120</h></coordinates><panel_attributes>Deacon
 --
 -handler:Handler
 -bcr:BroadcastReceiver
 --
 +getBroadcastReceiver()
 socketLine(String)
-finalize()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>520</x><y>370</y><w>280</w><h>290</h></coordinates><panel_attributes>DeaconService
+finalize()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>440</x><y>290</y><w>280</w><h>290</h></coordinates><panel_attributes>DeaconService
 --
 -catchUpTimeOut:Int
 -deaconThread:DeaconRunnable
@@ -44,14 +44,14 @@ finalize()</panel_attributes><additional_attributes/></element><element><type>co
 +joinChannel()
 +leaveChannel()
 parse(String)
-socketLine(String)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>880</x><y>400</y><w>160</w><h>100</h></coordinates><panel_attributes>DeaconRunnable
+socketLine(String)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>800</x><y>320</y><w>160</w><h>100</h></coordinates><panel_attributes>DeaconRunnable
 --
 -sock:Socket
 -in:BufferedReader
 -out:BufferedWriter
 --
-+run()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>910</x><y>330</y><w>100</w><h>30</h></coordinates><panel_attributes>Runnable
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>930</x><y>330</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>880</x><y>530</y><w>200</w><h>130</h></coordinates><panel_attributes>&lt;&lt;data class&gt;&gt;
++run()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>830</x><y>250</y><w>100</w><h>30</h></coordinates><panel_attributes>Runnable
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>850</x><y>250</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>800</x><y>450</y><w>200</w><h>130</h></coordinates><panel_attributes>&lt;&lt;data class&gt;&gt;
 Subscription
 --
 +channel:String
@@ -59,15 +59,15 @@ Subscription
 +lastMessageReceived:Int
 +catchup:Int
 --
-+toString()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>770</x><y>570</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
++toString()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>690</x><y>490</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m1=1
-m2=0..*</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>770</x><y>420</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>630</x><y>630</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>240</x><y>170</y><w>200</w><h>100</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+m2=0..*</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>690</x><y>340</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>550</x><y>550</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>160</x><y>90</y><w>200</w><h>100</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
 DeaconObserver
 --
 --
 onPush(DeaconResponse)
 onError(DeaconError)
-onReconnect()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>520</x><y>160</y><w>290</w><h>130</h></coordinates><panel_attributes>DeaconObservable
+onReconnect()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>440</x><y>80</y><w>290</w><h>130</h></coordinates><panel_attributes>DeaconObservable
 --
 -observers:arrayList&lt;DeaconObserver&gt;
 --
@@ -75,8 +75,8 @@ onReconnect()</panel_attributes><additional_attributes/></element><element><type
 +unregister(DeaconObserver)
 +notifyObservers(DeaconResponse)
 +notifyObserversError(DeaconError)
-+notifyObserversReconnect()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>410</x><y>190</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
++notifyObserversReconnect()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>330</x><y>110</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
 m1=0..*
-m2=1</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>630</x><y>260</y><w>50</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;110</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>290</x><y>340</y><w>100</w><h>30</h></coordinates><panel_attributes>UserApp
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>310</x><y>240</y><w>50</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;100</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>810</x><y>750</y><w>100</w><h>30</h></coordinates><panel_attributes>Message
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>720</x><y>730</y><w>110</w><h>50</h></coordinates><panel_attributes>lt=&lt;-&gt;</panel_attributes><additional_attributes>90;30;30;30</additional_attributes></element></umlet_diagram>
+m2=1</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>550</x><y>180</y><w>50</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;110</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>210</x><y>260</y><w>100</w><h>30</h></coordinates><panel_attributes>UserApp
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>230</x><y>160</y><w>50</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;100</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>730</x><y>670</y><w>100</w><h>30</h></coordinates><panel_attributes>Message
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>640</x><y>650</y><w>110</w><h>50</h></coordinates><panel_attributes>lt=&lt;-&gt;</panel_attributes><additional_attributes>90;30;30;30</additional_attributes></element></umlet_diagram>
