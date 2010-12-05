@@ -20,60 +20,66 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>550</x><y>260</y><w>100</w><h>60</h></coordinates><panel_attributes>Deacon
---</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>480</x><y>100</y><w>240</w><h>100</h></coordinates><panel_attributes>DeaconObservable
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>520</x><y>260</y><w>100</w><h>60</h></coordinates><panel_attributes>Deacon
+--
+-Handler
+-Message</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>450</x><y>100</y><w>240</w><h>100</h></coordinates><panel_attributes>DeaconObservable
 --
 -observers[]&lt;DeaconObserver&gt;
 --
 notifyObservers(notification)
 register(DeaconObserver)
-unregister(DeaconObserver)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>220</x><y>100</y><w>150</w><h>80</h></coordinates><panel_attributes>/DeaconObserver/
+unregister(DeaconObserver)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>190</x><y>100</y><w>150</w><h>100</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+DeaconObserver
 --
 --
 onPush(notification)
 onStatusChange()
-onError()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>510</x><y>380</y><w>190</w><h>190</h></coordinates><panel_attributes>/PushProtocol/
+onError()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>480</x><y>380</y><w>190</w><h>140</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+PushProtocol
 --
--runnable
--subscriptions[]
 --
 server(str server)
 port(int port)
 start()
 stop()
-isRunning()
-subChannel(str chan)
-unsubChannel(str chan)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>460</x><y>630</y><w>140</w><h>60</h></coordinates><panel_attributes>MeteorProtocol
+isRunning()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>370</x><y>600</y><w>190</w><h>170</h></coordinates><panel_attributes>MeteorProtocol
 --
-{Meteor-specific
-config/methods}</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>820</x><y>390</y><w>140</w><h>60</h></coordinates><panel_attributes>&lt;&lt;data class&gt;&gt;
-Subscription
+-Runnable
+-subscriptions[]
 --
-+channelName</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>620</x><y>630</y><w>140</w><h>60</h></coordinates><panel_attributes>BayeuxProtocol
++joinChannel(String)
++leaveChannel(String)
++checkChannel(String)
++setCatchUpTimeOut(int)
++getCatchUpTimeOut()
+-parse(String)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>600</x><y>600</y><w>140</w><h>60</h></coordinates><panel_attributes>BayeuxProtocol
 --
 {Bayeux-specific
-config/methods}</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>520</x><y>540</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>630</x><y>540</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>670</x><y>380</y><w>170</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
-m1=0..n</panel_attributes><additional_attributes>150;30;30;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>570</x><y>170</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>570</x><y>290</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;90;30;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>730</x><y>520</y><w>150</w><h>80</h></coordinates><panel_attributes>MeteorSubscription
+config/methods}</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>460</x><y>490</y><w>90</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>70;30;30;110</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>580</x><y>490</y><w>80</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;60;110</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>260</x><y>600</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>540</x><y>170</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>540</x><y>290</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;90;30;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>140</x><y>600</y><w>150</w><h>80</h></coordinates><panel_attributes>MeteorSubscription
 --
 +backtrack
 +catchUpTimeOut
-+lastMsgReceived</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>900</x><y>520</y><w>150</w><h>80</h></coordinates><panel_attributes>BayouxSubscription
---
-+backtrack
-+catchUpTimeOut
-+lastMsgReceived</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>820</x><y>420</y><w>50</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;100</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>900</x><y>420</y><w>50</w><h>120</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;100</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>340</x><y>100</y><w>160</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
-m1=0..n</panel_attributes><additional_attributes>30;30;140;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>320</x><y>310</y><w>140</w><h>60</h></coordinates><panel_attributes>DeaconC2DM
++lastMsgReceived</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>310</x><y>100</y><w>160</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n</panel_attributes><additional_attributes>30;30;140;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>290</x><y>310</y><w>140</w><h>60</h></coordinates><panel_attributes>DeaconC2DM
 --
 {C2DM lookalike
-configuration}</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Note</type><coordinates><x>740</x><y>200</y><w>150</w><h>40</h></coordinates><panel_attributes>Handles message
-routing
-fg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>620</x><y>190</y><w>140</w><h>90</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>30;70;120;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>300</x><y>150</y><w>80</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;60;160</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>180</x><y>310</y><w>120</w><h>60</h></coordinates><panel_attributes>UserApp1
+configuration}</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Note</type><coordinates><x>720</x><y>180</y><w>150</w><h>60</h></coordinates><panel_attributes>Handles message
+routing, connection
+management
+fg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>590</x><y>170</y><w>150</w><h>110</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>30;90;130;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>270</x><y>170</y><w>80</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;60;140</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>150</x><y>310</y><w>120</w><h>60</h></coordinates><panel_attributes>UserApp1
 bg=gray
---</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>380</x><y>240</y><w>120</w><h>30</h></coordinates><panel_attributes>Android.Service
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>390</x><y>240</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1000</x><y>420</y><w>130</w><h>50</h></coordinates><panel_attributes>BayeuxMessage
---</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1010</x><y>340</y><w>100</w><h>30</h></coordinates><panel_attributes>JSONObject
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1030</x><y>340</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1000</x><y>440</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>710</x><y>260</y><w>130</w><h>30</h></coordinates><panel_attributes>Android.Handler
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>710</x><y>300</y><w>130</w><h>30</h></coordinates><panel_attributes>Android.Message
-bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>620</x><y>240</y><w>110</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;30;30;50</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>620</x><y>270</y><w>110</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;40;30;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>210</x><y>150</y><w>70</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>50;30;30;160</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>330</x><y>430</y><w>120</w><h>60</h></coordinates><panel_attributes>UserApp2
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>350</x><y>220</y><w>120</w><h>30</h></coordinates><panel_attributes>Android.Service
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>360</x><y>220</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>690</x><y>710</y><w>130</w><h>110</h></coordinates><panel_attributes>BayeuxMessage
+--
+channel
+version
+timestamp
+data
+etc...</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>760</x><y>630</y><w>100</w><h>30</h></coordinates><panel_attributes>JSONObject
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>770</x><y>630</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>680</x><y>260</y><w>130</w><h>30</h></coordinates><panel_attributes>Android.Handler
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>680</x><y>300</y><w>130</w><h>30</h></coordinates><panel_attributes>Android.Message
+bg=gray</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>590</x><y>240</y><w>110</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;30;30;50</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>590</x><y>270</y><w>110</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;40;30;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>180</x><y>170</y><w>70</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>50;30;30;140</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>300</x><y>420</y><w>120</w><h>60</h></coordinates><panel_attributes>UserApp2
 bg=gray
---</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>360</x><y>340</y><w>50</w><h>110</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;30;30;90</additional_attributes></element></umlet_diagram>
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>330</x><y>340</y><w>50</w><h>100</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;30;30;80</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>670</x><y>630</y><w>80</w><h>100</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>60;80;30;30</additional_attributes></element></umlet_diagram>
