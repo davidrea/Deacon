@@ -1,6 +1,8 @@
 package org.deacon.test;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.deacon.DeaconService;
@@ -31,7 +33,6 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		super.setUp();
 		this.testDeacon = new DeaconService(host, port);
 		this.testDeacon.joinChannel("testonly", 0);
-		this.testDeacon.joinChannel("2sec", 0);
 		this.testDeacon.register(this);
 	}
 	
@@ -41,7 +42,6 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	
 	public void testJoinChannel() {
 		assertTrue(this.testDeacon.checkChannel("testonly"));
-		assertTrue(this.testDeacon.checkChannel("2sec"));
 	}
 	
 	public void testLeaveChannel() {
@@ -86,6 +86,8 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	}
 	
 	public void testStart() {
+		this.testDeacon.joinChannel("testonly", 0); // Subscribe to 'testonly' if not already subscribed
+		assertTrue(this.testDeacon.checkChannel("testonly"));
 		this.response = null;
 		try {
 			this.testDeacon.start();
@@ -94,16 +96,47 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 			fail("Exception caught: Could not start DeaconService");
 		}
 		assertTrue(this.testDeacon.isRunning());
+		
 		try {
-			Thread.sleep(2500);
-			// TODO set up a higher-frequency channel on the test server to reduce test runtime
-		} catch (InterruptedException e) {
+			Thread.sleep(50);
+		} catch(InterruptedException e) {
 			e.printStackTrace();
 			fail("Exception caught: could not sleep");
 		}
+		
+		// Attempt to send a message
+		Socket serverControlChannel = null;
+		PrintWriter serverOut = null;
+		try {
+			serverControlChannel = new Socket(DeaconServiceTest.host, 4671);
+			serverOut = new PrintWriter(serverControlChannel.getOutputStream(), true);
+			serverOut.println("ADDMESSAGE testonly messagetext");
+			serverOut.close();
+			try {
+				serverControlChannel.close();
+			} catch (IOException e) {
+				fail("Exception caught: Unable to close connection to " + DeaconServiceTest.host);
+			}
+		}
+		catch (UnknownHostException e)
+		{
+			fail("Exception caught: Could not resolve " + DeaconServiceTest.host);
+		}
+		catch (IOException e)
+		{
+			fail("Exception caught: Could not connect to " + DeaconServiceTest.host);
+		}
+		
+		try {
+			Thread.sleep(50);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+			fail("Exception caught: could not sleep");
+		}
+		
 		assertNotNull(this.response);
-		assertEquals(this.response.getChannel(), "2sec");
-		assertNotNull(this.response.getPayload());
+		assertEquals(this.response.getChannel(), "testonly");
+		assertEquals(this.response.getPayload(), "messagetext");
 	}
 	
 	public void testStop() {
@@ -118,6 +151,11 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		}
 		assertNull(this.response);
 	}
+	
+	/**
+	 * Overridden methods from DeaconObserver interface
+	 * These are necessary in order for the test to receive Deacon events.
+	 */
 
 	@Override
 	public void onError(DeaconError err) {

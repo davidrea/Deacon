@@ -183,11 +183,19 @@ public class DeaconService extends DeaconObservable {
 		// Bounds-check backtrack; should be positive integer
 		if(backtrack < 0) backtrack = 0;
 		
-		//System.out.println("Joining channel: " + chan + " with backtrack=" + backtrack);
-		Subscription sub = new Subscription();
-		sub.channel = chan;
-		sub.backtrack = backtrack;
-		this.subscriptions.add(sub);
+		// Check to make sure channel isn't already subscribed
+		boolean alreadySubscribed = false;
+		for(Subscription sub : this.subscriptions) {
+			if(sub.channel.equals(chan)) alreadySubscribed = true;
+		}
+		
+		// Record the new subscription
+		if(alreadySubscribed == false){
+			Subscription sub = new Subscription();
+			sub.channel = chan;
+			sub.backtrack = backtrack;
+			this.subscriptions.add(sub);
+		}
 	}
 	
 	/**
@@ -207,10 +215,13 @@ public class DeaconService extends DeaconObservable {
 	 * @param chan The channel name on the Meteor server
 	 */
 	public synchronized void leaveChannel(final String chan) {
+		Subscription removeMe = null;
 		for(Subscription sub : subscriptions){
-			if(sub.channel.equals(chan)) {
-				this.subscriptions.remove(sub);
-			}
+			if(chan.equals(sub.channel)) removeMe = sub;
+		}
+		if(removeMe != null)
+		{
+			Boolean removed = subscriptions.remove(removeMe);
 		}
 	}
 	
