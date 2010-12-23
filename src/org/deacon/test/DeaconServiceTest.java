@@ -176,4 +176,9 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		
 	}
 
+	@Override
+	public void onDisconnect(){
+		// TODO 
+	}
+	
 }

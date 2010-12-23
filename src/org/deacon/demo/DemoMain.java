@@ -84,4 +84,10 @@ public class DemoMain implements DeaconObserver{
 		System.out.println("Oh Hai!~ I'm reconnected");
 	}
 	
+	@Override
+	public void onDisconnect(){
+		error=true;
+		System.out.println("Forgot to pay utility bill, I'm disconnected");
+	}
+	
 }

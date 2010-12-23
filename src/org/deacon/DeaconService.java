@@ -90,7 +90,7 @@ public class DeaconService extends DeaconObservable {
 					stop();
 				} catch (IOException e) {
 					error = true;
-					notifyObserversError(new DeaconError(e));
+					notifyObserversDisconnect(new DeaconError(e));
 					stop();
 				}
 				

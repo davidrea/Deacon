@@ -103,8 +103,14 @@ public class DemoMainCatchup implements DeaconObserver{
 
 	@Override
 	public void onReconnect() {
-		error=false;
+		error = false;
 		System.out.println("Oh Hai!~ I'm reconnected");
 	}
 	
+	@Override
+	public void onDisconnect() {
+		error = false;
+		System.out.println("Forgot to pay the utilities, I'm disconnected");
+	}
+		
 }

@@ -27,4 +27,6 @@ public interface DeaconObserver {
 	
 	public void onReconnect();
 	
+	public void onDisconnect();
+	
 }
