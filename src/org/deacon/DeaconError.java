@@ -64,5 +64,13 @@ public class DeaconError {
 	public Exception getError(){
 		return error;
 	}
+
+	/**
+	 * Gets the specific error type of this error
+	 * @return the specific error type
+	 */
+	public DeaconErrorType getErrorType(){
+		return errorType;
+	}
 	
 }
