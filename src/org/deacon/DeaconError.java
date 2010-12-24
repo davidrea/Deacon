@@ -21,15 +21,41 @@ package org.deacon;
 public class DeaconError {
 
 	private Exception error;
+	private DeaconErrorType errorType;
 	
+	/**
+	 * Default constructor that sets the original exception and
+	 * defaults the exception type
+	 * @param e is the original exception that was thrown
+	 */
 	public DeaconError(Exception e){
 		error = e;
+		errorType = DeaconErrorType.UnknownError;
 	}
 	
+	/**
+	 * Constructor that sets both the original error and the 
+	 * error type
+	 * @param e is the original error thrown
+	 * @param type is the specific error type
+	 */
+	public DeaconError(Exception e, DeaconErrorType type){
+		error = e;
+		errorType = type;
+	}
+	
+	/**
+	 * Gets the message for this error
+	 * @return the message for this error
+	 */
 	public String getErrorMsg(){
 		return error.getMessage();
 	}
 	
+	/**
+	 * Gets the exception that was thrown to create this error
+	 * @return the original error
+	 */
 	public Exception getError(){
 		return error;
 	}
