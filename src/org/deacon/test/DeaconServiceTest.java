@@ -177,8 +177,9 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	}
 
 	@Override
-	public void onDisconnect(){
-		// TODO 
+	public void onDisconnect(DeaconError error) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
