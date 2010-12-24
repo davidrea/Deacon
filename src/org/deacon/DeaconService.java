@@ -86,11 +86,11 @@ public class DeaconService extends DeaconObservable {
 					
 				} catch (UnknownHostException e) {
 					error = true;
-					notifyObserversError(new DeaconError(e));
+					notifyObserversError(new DeaconError(e, DeaconErrorType.UnknownHostError));
 					stop();
 				} catch (IOException e) {
 					error = true;
-					notifyObserversDisconnect(new DeaconError(e));
+					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
 				
@@ -128,7 +128,7 @@ public class DeaconService extends DeaconObservable {
 					}
 					catch(IOException e){
 						error = true;
-						notifyObserversError(new DeaconError(e));
+						notifyObserversError(new DeaconError(e)); //not sure what error this would be. need to test.
 						stop();
 					}
 				}
