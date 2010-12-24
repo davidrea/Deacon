@@ -25,35 +25,64 @@ public class DeaconObservable {
 
 	protected ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
 	
+	/**
+	 * Allows registration to observe events from this observable
+	 * @param observer is a DeaconObserver that wants notification
+	 * events from this observable
+	 */
 	public void register(DeaconObserver observer){
 		observers.add(observer);
 	}
 	
+	/**
+	 * Allows unregistration of event notification
+	 * @param observer that wants to unregister
+	 */
 	public void unregister(DeaconObserver observer){
 		observers.remove(observer);
 	}
 	
+	/**
+	 * Notifies observers of push events
+	 * @param response is the payload response from the server
+	 */
 	protected void notifyObservers(DeaconResponse response){
+		/*
+		 * possibly needs a name change. Something like 
+		 * notifyObserversOfPush(response) would work.
+		 */
 		for (DeaconObserver obs: observers){
 			obs.onPush(response);
 		}
 	}
 	
-	protected void notifyObserversError(DeaconError err){
+	/**
+	 * Notifies observers of the service's errors
+	 * @param error is the eeror object that is sent to
+	 * the observers
+	 */
+	protected void notifyObserversError(DeaconError error){
 		for (DeaconObserver obs: observers){
-			obs.onError(err);
+			obs.onError(error);
 		}
 	}
 	
+	/**
+	 * Notifies observers of a reconnect to the server event
+	 */
 	protected void notifyObserversReconnect(){
 		for (DeaconObserver obs: observers){
 			obs.onReconnect();
 		}
 	}
 	
-	protected void notifyObserversDisconnect(DeaconError err){
+	/**
+	 * Notifies observers of a service disconnect
+	 * @param error is the error sent to the observer
+	 */
+	protected void notifyObserversDisconnect(DeaconError error){
 		for (DeaconObserver obs: observers){
-			obs.onDisconnect();
+			obs.onDisconnect(error);
 		}
 	}
 	

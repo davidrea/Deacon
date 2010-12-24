@@ -85,7 +85,7 @@ public class DemoMain implements DeaconObserver{
 	}
 	
 	@Override
-	public void onDisconnect(){
+	public void onDisconnect(DeaconError err){
 		error=true;
 		System.out.println("Forgot to pay utility bill, I'm disconnected");
 	}

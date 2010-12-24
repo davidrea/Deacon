@@ -108,7 +108,7 @@ public class DemoMainCatchup implements DeaconObserver{
 	}
 	
 	@Override
-	public void onDisconnect() {
+	public void onDisconnect(DeaconError err) {
 		error = false;
 		System.out.println("Forgot to pay the utilities, I'm disconnected");
 	}
