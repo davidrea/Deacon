@@ -20,7 +20,10 @@ package org.deacon;
 
 import java.util.ArrayList;
 
-
+/**
+ * Implements an observble to be used to register to receive Deacon
+ * events such as disconnection and reconnection from a server.
+ */
 public class DeaconObservable {
 
 	protected ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();

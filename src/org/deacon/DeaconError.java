@@ -18,6 +18,11 @@
 
 package org.deacon;
 
+/**
+ * Implements an error class to describe different errors that
+ * the DeaconService could throw. Used by clients to determine
+ * why events may have happend.
+ */
 public class DeaconError {
 
 	private Exception error;
