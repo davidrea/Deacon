@@ -69,7 +69,7 @@ public class Deacon extends DeaconService {
 				{
 					// Debug only
 					for(String key : keys) {
-						System.out.println("Got key: " + key +  ", with value = " + extras.get(key));
+						Log.d("Deacon", "Got key: " + key +  ", with value = " + extras.get(key));
 					}
 				}
 				if(extras.containsKey("networkInfo")) {
@@ -78,12 +78,14 @@ public class Deacon extends DeaconService {
 						if(!isRunning()){
 							Log.d("Deacon","Network has connection!");
 							notifyObserversReconnect();
-							try {
-								start();
-							} catch (Exception e) {
-								e.printStackTrace();
-								System.out.println("Deacon tried to start an already-running DeaconService");
-							}							
+							if(autoRestart) {
+								try {
+									start(); // <<<<<<< THIS ISN'T WORKING (gets through start() but no pushes received)
+								} catch (Exception e) {
+									e.printStackTrace();
+									Log.d("Deacon", "Deacon tried to start an already-running DeaconService");
+								}
+							}
 						}
 					}
 					else {
@@ -132,7 +134,7 @@ public class Deacon extends DeaconService {
 	 * Called by GC when Deacon object is GC'd. Should be called by application context before Android onDestroy method returns.
 	 */
 	protected void finalize() {
-		System.out.println("Shutting down, destroying Deacon object.");
+		Log.d("Deacon", "Shutting down, destroying Deacon object.");
 		stop();
 		this.parent.unregisterReceiver(bcr);
 	}

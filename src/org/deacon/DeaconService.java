@@ -50,12 +50,17 @@ public class DeaconService extends DeaconObservable {
 	/**
 	 * Member attributes
 	 */
+	
+	// Configuration
 	private final String host;
 	private final int port;
 	private final long hostid;
+	private Integer catchUpTimeOut = 0;
+	protected boolean autoRestart = true;
+	
+	// State
 	private ArrayList<Subscription> subscriptions;
 	private boolean running = false;
-	private Integer catchUpTimeOut = 0;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
 	
@@ -106,7 +111,6 @@ public class DeaconService extends DeaconObservable {
 							sub.backtrack = 0;
 						}
 						else if(sub.catchup > 0 && running) {
-							// System.out.println("Found catchup="+sub.catchup+" for chan="+sub.channel);
 							serverstring += ".r" + sub.catchup;
 							// Catchup retrieval is one-time-only; reset to zero after catchup request made
 							sub.catchup = 0;
@@ -120,7 +124,6 @@ public class DeaconService extends DeaconObservable {
 					try {
 						// Wait for a response from the channel
 						while( (response=in.readLine()) != null && running) {
-							//System.out.println("Got response: " + response);
 							parse(response);
 						}
 						out.close();
@@ -279,6 +282,16 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public boolean isRunning() {
 		return this.running;
+	}
+	
+	/**
+	 * Configures auto-restart behavior (i.e. should Deacon automatically 
+	 * restart after network connectivity has been lost and restored?)
+	 * @param restart
+	 */
+	public void setAutoRestart(boolean restart)
+	{
+		this.autoRestart = restart;
 	}
 	
 	/**
