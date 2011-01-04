@@ -128,7 +128,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		}
 		
 		try {
-			Thread.sleep(50);
+			Thread.sleep(100);
 		} catch(InterruptedException e) {
 			e.printStackTrace();
 			fail("Exception caught: could not sleep");
@@ -171,7 +171,7 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 	}
 	
 	@Override
-	public void onDisconnect() {
+	public void onDisconnect(DeaconError error) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -181,5 +181,5 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 }

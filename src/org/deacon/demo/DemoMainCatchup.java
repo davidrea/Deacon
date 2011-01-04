@@ -100,16 +100,17 @@ public class DemoMainCatchup implements DeaconObserver{
 		error = true;
 		System.out.println("What the deuce, there was an ERROR: "+err.getErrorMsg());
 	}
-	
-	@Override
-	public void onDisconnect() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void onReconnect() {
-		error=false;
+		error = false;
 		System.out.println("Oh Hai!~ I'm reconnected");
 	}
+	
+	@Override
+	public void onDisconnect(DeaconError err) {
+		error = false;
+		System.out.println("Forgot to pay the utilities, I'm disconnected");
+	}
+	
 }

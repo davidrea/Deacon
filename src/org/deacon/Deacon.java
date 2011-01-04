@@ -54,7 +54,7 @@ public class Deacon extends DeaconService {
 	
 	/**
 	 * BroadcastReceiver for receiving CONNECTIVITY_ACTIONs
-	 * We can detect changes in network state instead of polling....
+	 * Used to detect changes in network state instead of polling....
 	 * http://stackoverflow.com/questions/2294971/intent-action-for-network-events-in-android-sdk
 	 */
 	private BroadcastReceiver bcr = new BroadcastReceiver() {
@@ -88,12 +88,14 @@ public class Deacon extends DeaconService {
 					}
 					else {
 						Log.d("Deacon","Network is disconnected!");
-						notifyObserversDisconnect();
+						notifyObserversDisconnect(new DeaconError(new IOException("Lost mobile network connection"), DeaconErrorType.ConnectionError));
 						stop();
 					}
 				}
 				else if(extras.containsKey("noConnectivity")) {
 					Log.d("Deacon","Network is disconnected!");
+					notifyObserversDisconnect(new DeaconError(new IOException("Lost mobile network connection"), DeaconErrorType.ConnectionError));
+					// TODO ^^ Copy and paste programming
 					stop();
 				}
 				else {

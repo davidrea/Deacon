@@ -86,13 +86,11 @@ public class DeaconService extends DeaconObservable {
 					
 				} catch (UnknownHostException e) {
 					error = true;
-					notifyObserversError(new DeaconError(e));
-					notifyObserversDisconnect();
+					notifyObserversError(new DeaconError(e, DeaconErrorType.UnknownHostError));
 					stop();
 				} catch (IOException e) {
 					error = true;
-					notifyObserversError(new DeaconError(e));
-					notifyObserversDisconnect();
+					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
 				
@@ -103,7 +101,8 @@ public class DeaconService extends DeaconObservable {
 						serverstring += "/" + sub.channel;
 						if(sub.backtrack > 0 && running) {
 							serverstring += ".b" + sub.backtrack;
-							// Backtrack retrieval is one-time-only; reset to zero after backtrack request made
+							// Backtrack retrieval is one-time-only; 
+							//reset to zero after backtrack request made
 							sub.backtrack = 0;
 						}
 						else if(sub.catchup > 0 && running) {
@@ -130,7 +129,8 @@ public class DeaconService extends DeaconObservable {
 					}
 					catch(IOException e){
 						error = true;
-						notifyObserversError(new DeaconError(e));
+						notifyObserversError(new DeaconError(e)); 
+						//not sure what error this would be. need to test.
 						stop();
 					}
 				}
