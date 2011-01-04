@@ -45,6 +45,12 @@ public class DeaconObservable {
 		}
 	}
 	
+	protected void notifyObserversDisconnect(){
+		for (DeaconObserver obs: observers){
+			obs.onDisconnect();
+		}
+	}
+	
 	protected void notifyObserversReconnect(){
 		for (DeaconObserver obs: observers){
 			obs.onReconnect();

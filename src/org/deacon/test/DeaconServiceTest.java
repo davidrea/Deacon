@@ -169,6 +169,12 @@ public class DeaconServiceTest extends TestCase implements DeaconObserver {
 		System.out.println("Received push " + response.getPayload());
 		this.response = response;
 	}
+	
+	@Override
+	public void onDisconnect() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void onReconnect() {

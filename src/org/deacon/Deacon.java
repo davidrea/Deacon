@@ -77,6 +77,7 @@ public class Deacon extends DeaconService {
 					if(netinfo.isConnected()) {
 						if(!isRunning()){
 							Log.d("Deacon","Network has connection!");
+							notifyObserversReconnect();
 							try {
 								start();
 							} catch (Exception e) {
@@ -87,6 +88,7 @@ public class Deacon extends DeaconService {
 					}
 					else {
 						Log.d("Deacon","Network is disconnected!");
+						notifyObserversDisconnect();
 						stop();
 					}
 				}

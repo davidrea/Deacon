@@ -24,6 +24,8 @@ public interface DeaconObserver {
 	public void onPush(DeaconResponse response);
 	
 	public void onError(DeaconError err);
+
+	public void onDisconnect();
 	
 	public void onReconnect();
 	

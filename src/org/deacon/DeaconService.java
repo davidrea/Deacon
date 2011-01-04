@@ -87,10 +87,12 @@ public class DeaconService extends DeaconObservable {
 				} catch (UnknownHostException e) {
 					error = true;
 					notifyObserversError(new DeaconError(e));
+					notifyObserversDisconnect();
 					stop();
 				} catch (IOException e) {
 					error = true;
 					notifyObserversError(new DeaconError(e));
+					notifyObserversDisconnect();
 					stop();
 				}
 				
