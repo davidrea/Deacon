@@ -1,22 +1,11 @@
 package org.deacon.test;
 
-import info.monitorenter.gui.chart.Chart2D;
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.traces.Trace2DReplacing;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.swing.JFrame;
 
 import org.deacon.DeaconError;
 import org.deacon.DeaconObserver;
@@ -38,7 +27,7 @@ import org.deacon.DeaconService;
 public class DeaconCapacityTest implements DeaconObserver {
 	
 	public static final int MAX_LATENCY_MS   = 1000;
-	public static final long TEST_MAX 		 = 25000;	// Stop here if latency OK
+	public static final long TEST_MAX 		 = 2000;	// Stop here if latency OK
 	public static final String SERVER		 = "10.37.57.1";
 	public static final int CLIENT_PORT		 = 4670;
 	public static final int CONTROLLER_PORT	 = 4671;
@@ -74,17 +63,11 @@ public class DeaconCapacityTest implements DeaconObserver {
 		System.out.println("Starting Simultaneous Subscribers test");
 		maxLatency = 0;
 
-		Chart2D chart = new Chart2D();
-		ITrace2D simulSubTrace = new Trace2DSimple();
-		chart.addTrace(simulSubTrace);
-		simulSubTrace.setTracePainter(new TracePainterDisc());
-		simulSubTrace.setPhysicalUnits("Subscriber Count", "Latency (ms)");
-		
-		while(maxLatency <= MAX_LATENCY_MS && DeaconInstances.size() <= TEST_MAX) {
+		while(DeaconInstances.size() <= TEST_MAX) {
 			
 			// Pause a moment
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(200);
 			} catch(InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -119,24 +102,6 @@ public class DeaconCapacityTest implements DeaconObserver {
 		System.out.println("=====================================");
 		System.out.println("  Reached " + DeaconInstances.size() + " subscribers");
 		System.out.println("  Maximum latency: " + maxLatency + "ms\n");
-		
-		Enumeration<Integer> keys = simulSubsReuslts.keys();
-		System.out.println("SimulSubsResults = " + simulSubsReuslts.size());
-		while(keys.hasMoreElements()) {
-			Integer count = keys.nextElement();
-			simulSubTrace.addPoint(count, simulSubsReuslts.get(count));
-		}
-		
-		JFrame frame = new JFrame("Simultaneous Subscriber Test Results");
-		frame.getContentPane().add(chart);
-		frame.setSize(640,480);
-		frame.addWindowListener(
-				new WindowAdapter() {
-					public void windowClosingEvent(WindowEvent e) {
-						System.exit(0);
-					}
-				} );
-		frame.setVisible(true);
 
 		DeaconInstances.clear();
 		
