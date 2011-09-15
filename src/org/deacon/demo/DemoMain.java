@@ -39,7 +39,7 @@ public class DemoMain implements DeaconObserver{
 		DeaconService myService;
 		try {
 			myService = new DeaconService("home.daverea.com",4670);
-			myService.joinChannel("2sec", 0);			
+			myService.joinChannel("2sec", 0);
 			myService.register(this);
 			
 			try {

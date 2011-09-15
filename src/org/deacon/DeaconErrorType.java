@@ -7,7 +7,8 @@ public enum DeaconErrorType {
 
 	UnknownError ("An unknown error"),
 	ConnectionError ("A connection Error"),
-	UnknownHostError ("An unknown host error");
+	UnknownHostError ("An unknown host error"),
+	Timeout ("Broken pipe: maximum ping time exceeded");
 	
 	private String message;
 	
