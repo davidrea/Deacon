@@ -61,6 +61,7 @@ public class DeaconService extends DeaconObservable {
 	// State
 	private ArrayList<Subscription> subscriptions;
 	private boolean running = false;
+	private boolean connected = false;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
 	
@@ -95,6 +96,7 @@ public class DeaconService extends DeaconObservable {
 					stop();
 				} catch (IOException e) {
 					error = true;
+					e.printStackTrace();
 					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
@@ -120,6 +122,7 @@ public class DeaconService extends DeaconObservable {
 					
 					// Subscribe to the channel
 					out.println(serverstring);
+					connected = true;
 					
 					try {
 						// Wait for a response from the channel
@@ -137,9 +140,11 @@ public class DeaconService extends DeaconObservable {
 						stop();
 					}
 				}
-					
+				else {
+					connected = false;
+				}	
 			}
-			
+			connected = false;
 		}
 	}
 	
@@ -250,9 +255,9 @@ public class DeaconService extends DeaconObservable {
 			}
 		}
 		// Start the client
-		this.running = true;
 		deaconThread = new Thread(new DeaconRunnable());
 		deaconThread.start();
+		this.running = true;
 	}
 	
 	/**
@@ -282,6 +287,10 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public boolean isRunning() {
 		return this.running;
+	}
+	
+	public boolean isConnected() {
+		return this.connected;
 	}
 	
 	/**
