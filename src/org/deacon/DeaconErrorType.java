@@ -8,7 +8,9 @@ public enum DeaconErrorType {
 	UnknownError ("An unknown error"),
 	ConnectionError ("A connection Error"),
 	UnknownHostError ("An unknown host error"),
-	Timeout ("Broken pipe: maximum ping time exceeded");
+	TimeoutRetrying ("Broken pipe: maximum ping time exceeded. Attempting to reconnect."),
+	TimeoutPermanent ("Broken pipe: unable to reconnect"),
+	BackoffFailed ("Could not perform backoff when attempting to reconnect.");
 	
 	private String message;
 	

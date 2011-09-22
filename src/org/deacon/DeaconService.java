@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class DeaconService extends DeaconObservable {
 	private Integer catchUpTimeOut = 0;
 	protected boolean autoRestart = true;
 	private Integer pingTimeout = 0;
+	private Integer maxRetries = 10;
 	
 	// State
 	private ArrayList<Subscription> subscriptions;
@@ -68,26 +70,43 @@ public class DeaconService extends DeaconObservable {
 	private boolean connected = false;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
-	
-	/**
-	 * Runnable to execute Meteor HTTP GETs and collect the results;
-	 * this runnable implements the server interaction mode
-	 */
+
+	// Resources
+	private Socket sock = null;
 	private class DeaconRunnable implements Runnable {
 		
-		private Socket sock = null;
 		private PrintWriter out = null;
 		private InputStreamReader stream = null;
 		private BufferedReader in = null;
 		private boolean error = false;
+		private int retries = 0;
 		
 		@Override
 		public void run() {
 			String response = "";
-			while (running){ 
+			while (running){
+				
+				// Only try to reconnect up to the max retry count
+				if(retries > maxRetries) {
+					notifyObserversError(new DeaconError(new Exception("MaxRetries"), DeaconErrorType.TimeoutPermanent));
+					break;
+				}
+				
+				// Perform crude (linear) back-off
+				if(retries > 0) {
+					try {
+						Thread.sleep(1000*10*retries);
+					} catch (InterruptedException e) {
+						// If can't back-off, stop trying
+						notifyObserversError(new DeaconError(e, DeaconErrorType.BackoffFailed));
+						running = false;
+						break;
+					}
+				}
 				
 				// Connect
 				try {
+					++retries;
 					sock = new Socket(host, port);
 					out  = new PrintWriter(sock.getOutputStream(), true);
 					stream = new InputStreamReader(sock.getInputStream());
@@ -101,18 +120,19 @@ public class DeaconService extends DeaconObservable {
 					// This prevents getting stuck in readline() if the pipe breaks
 					sock.setSoTimeout(pingTimeout * 1000);
 					
+					retries = 0;
+					
 				} catch (UnknownHostException e) {
 					error = true;
 					notifyObserversError(new DeaconError(e, DeaconErrorType.UnknownHostError));
 					stop();
 				} catch (IOException e) {
 					error = true;
-					e.printStackTrace();
 					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
 				
-				if(!error){
+				if(!error && running){
 					// Construct the subscription string
 					String serverstring = "GET /push/" + hostid + "/longpoll";
 					for(Subscription sub : subscriptions) {
@@ -137,7 +157,7 @@ public class DeaconService extends DeaconObservable {
 					
 					try {
 						// Wait for a response from the channel
-						while( (response=in.readLine()) != null && running) {
+						while(running && (response=in.readLine()) != null) {
 							// Got a response
 							//killConnection.cancel();
 							parse(response);
@@ -149,12 +169,15 @@ public class DeaconService extends DeaconObservable {
 					catch(IOException e) {
 						error = true;
 						if(e instanceof SocketTimeoutException) {
-							notifyObserversError(new DeaconError(e, DeaconErrorType.Timeout));
+							notifyObserversError(new DeaconError(e, DeaconErrorType.TimeoutRetrying));
+						}
+						else if(e instanceof SocketException) {
+							notifyObserversDisconnect(new DeaconError(e));
 						}
 						else {
 							notifyObserversError(new DeaconError(e));
+							stop();
 						}
-						stop();
 					}
 				}
 				else {
@@ -162,8 +185,6 @@ public class DeaconService extends DeaconObservable {
 					connected = false;
 				}	
 			}
-			// Thread is no longer running; connection must be closed
-			connected = false;
 		}
 		// Return --> Thread terminates
 	}
@@ -302,6 +323,16 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public void stop(){
 		this.running = false;
+		if(sock != null) {
+			try {
+				sock.close();
+			} catch (IOException e) {
+				// Unable to close socket?!
+				// In this case, don't need to take any particular action;
+				// The socket will eventually time out and running=false will
+				// cause the runnable's run() method to return.
+			}
+		}
 		// Set up each subscription to automatically catch itself up if Deacon is restarted
 		for(Subscription sub : this.subscriptions) {
 			if(sub.lastMessageReceived != 0) {
