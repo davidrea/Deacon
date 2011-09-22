@@ -89,6 +89,7 @@ public class DeaconService extends DeaconObservable {
 				// Only try to reconnect up to the max retry count
 				if(retries > maxRetries) {
 					notifyObserversError(new DeaconError(new Exception("MaxRetries"), DeaconErrorType.TimeoutPermanent));
+					stop();
 					break;
 				}
 				
@@ -173,6 +174,7 @@ public class DeaconService extends DeaconObservable {
 						}
 						else if(e instanceof SocketException) {
 							notifyObserversDisconnect(new DeaconError(e));
+							// This exception is thrown by sock.close(); already in stop()
 						}
 						else {
 							notifyObserversError(new DeaconError(e));
@@ -323,7 +325,7 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public void stop(){
 		this.running = false;
-		if(sock != null) {
+		if(sock != null && sock.isConnected()) {
 			try {
 				sock.close();
 			} catch (IOException e) {
