@@ -255,9 +255,9 @@ public class DeaconService extends DeaconObservable {
 			}
 		}
 		// Start the client
+		this.running = true;
 		deaconThread = new Thread(new DeaconRunnable());
 		deaconThread.start();
-		this.running = true;
 	}
 	
 	/**
