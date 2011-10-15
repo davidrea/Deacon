@@ -40,3 +40,9 @@ To develop or test Deacon in Eclipse:
 # Click "Add External Jar..." and select the android.jar file from the appropriate Android platform directory
 # Click the "Add Library..." and add a JUnit library to the project.
 # Ensure the JUnit library has higher precedence than the android.jar file.
+
+h1. Meteor Server
+
+In order to run a Deacon application, you'll need a Meteor push server. Meteor can be set up on your local Linux or Windows box using the instructions on the "Server Setup wiki page":https://github.com/davidrea/Deacon/wiki/Server-setup.
+
+The Project also operates a test server with several automatic channels. Details about the Deacon test server can be found in the "Deacon Alpha Release blog entry":http://deacon.daverea.com/2010/05/deacon-alpha-released/.
