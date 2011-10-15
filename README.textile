@@ -1,4 +1,4 @@
-h1. Deacon !http://stillmaintained.com/davidrea/Deacon.png!
+h1. Deacon !http://stillmaintained.com/davidrea/Deacon.png!:http://stillmaintained.com/davidrea/Deacon
 
 An open-source push notifications library for Android and Java applications.
 
@@ -7,20 +7,29 @@ h1. Background
 The Deacon Project aims to produce an open-source push notifications library for the Android platform. "Deacon" is a Java class library used by Android developers to receive Push notifications from a Meteor comet web server. "Deacon-Demo" (http://github.com/davidrea/Deacon-Demo/) is an Android app that is used for testing and demonstration of Deacon, and is also developed by members of the Deacon project.
 
 For more information see:
-http://www.deaconproject.org/
-http://github.com/davidrea/Deacon
-http://wiki.github.com/davidrea/Deacon/
-http://www.meteorserver.org/
+
+* Project Blog - "http://www.deaconproject.org/":http://www.deaconproject.org/
+* Project Repository - "http://github.com/davidrea/Deacon":http://github.com/davidrea/Deacon
+* Project Wiki - "https://github.com/davidrea/Deacon/wiki":https://github.com/davidrea/Deacon/wiki
+* Meteor Server - "http://www.meteorserver.org/":http://www.meteorserver.org/
+* Demo Application - "https://github.com/davidrea/Deacon-Demo":https://github.com/davidrea/Deacon-Demo
+
+h1. Contributing
+
+To quote Jeff Kreeftmeijer, Deacon "still needs your help to become awesome." It's a work in progress, but many devs have successfully integrated it into their applications. Check out the "Contributing Page":https://github.com/davidrea/Deacon/wiki/Contributing on the "Wiki":https://github.com/davidrea/Deacon/wiki and send a "pull request":https://github.com/davidrea/Deacon/pulls, will ya?
+
+You can also contribute by:
+
+* Logging feature requests, suggestions and ideas in the "Deacon Issue Tracker":https://github.com/davidrea/Deacon/issues
+* Testing Deacon on your device(s) and opening "issues":https://github.com/davidrea/Deacon/issues for any problems you find
 
 h1. What's Here
 
-src/ ....... Source tree, containing all Deacon source files
+* src/ ....... Source tree, containing all Deacon source files
+* doc/ ....... Documentation, including design models and API reference
+* COPYING* ... License files
 
-doc/ ....... Documentation, including design models and API reference
-
-COPYING* ... License files
-
-h1. Developing in Eclipse
+h1. Getting Started
 
 To develop or test Deacon in Eclipse:
 
@@ -31,7 +40,3 @@ To develop or test Deacon in Eclipse:
 # Click "Add External Jar..." and select the android.jar file from the appropriate Android platform directory
 # Click the "Add Library..." and add a JUnit library to the project.
 # Ensure the JUnit library has higher precedence than the android.jar file.
-
-h1. Developer Information
-
-Quick start instructions for integrating Deacon into your applciation are located in the "Overview" section of the API reference.
