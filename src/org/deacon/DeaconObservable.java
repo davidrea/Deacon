@@ -25,8 +25,12 @@ import java.util.ArrayList;
  * events such as disconnection and reconnection from a server.
  */
 public class DeaconObservable {
+	
+	// Members
 
 	protected ArrayList<DeaconObserver> observers = new ArrayList<DeaconObserver>();
+	
+	// Methods
 	
 	/**
 	 * Allows registration to observe events from this observable
@@ -49,28 +53,46 @@ public class DeaconObservable {
 	 * Notifies observers of push events
 	 * @param response is the payload response from the server
 	 */
-	protected void notifyObservers(DeaconResponse response){
-		/*
-		 * possibly needs a name change. Something like 
-		 * notifyObserversOfPush(response) would work.
-		 */
+	protected void notifyPush(DeaconResponse response){
 		for (DeaconObserver obs: observers){
 			obs.onPush(response);
 		}
 	}
 	
 	/**
+	 * Notified observers of state changes
+	 * @param running Whether the client is currently running
+	 * @param connected Whether the client is currently connected to the server
+	 */
+	protected void notifyState(boolean running, boolean connected) {
+		for (DeaconObserver obs: observers) {
+			obs.onStateChanged(running, connected);
+		}
+	}
+	
+	/**
 	 * Notifies observers of the service's errors
-	 * @param error is the eeror object that is sent to
+	 * @param error is the error object that is sent to
 	 * the observers
 	 */
-	protected void notifyObserversError(DeaconError error){
+	protected void notifyError(DeaconError error){
 		for (DeaconObserver obs: observers){
 			obs.onError(error);
 		}
 	}
 	
+	// Deprecated Methods
+	
 	/**
+	 * @deprecated
+	 */
+	protected void notifyObservers(DeaconResponse response) {
+		notifyPush(response);
+	}
+	
+	/**
+	 * @deprecated
+	 * 
 	 * Notifies observers of a reconnect to the server event
 	 */
 	protected void notifyObserversReconnect(){
@@ -80,6 +102,8 @@ public class DeaconObservable {
 	}
 	
 	/**
+	 * @deprecated
+	 * 
 	 * Notifies observers of a service disconnect
 	 * @param error is the error sent to the observer
 	 */

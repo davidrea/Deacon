@@ -35,16 +35,16 @@ import java.util.regex.Pattern;
 /**
  * Implements the core operation of the Deacon Meteor client. 
  */
-public class DeaconService extends DeaconObservable {
+public class MeteorPushReceiver extends PushReceiver {
 	
 	/**
 	 * Class to encapsulate a Meteor channel subscription as an object
 	 */
 	private class Subscription {
-		public String channel="";
-		public Integer backtrack=0;
-		public Integer lastMessageReceived=0;
-		public Integer catchup = 0;
+		public String  channel             = "";
+		public Integer backtrack           = 0;
+		public Integer lastMessageReceived = 0;
+		public Integer catchup             = 0;
 		
 		public String toString() {
 			return "SUB{chan="+channel+"/backtrack="+backtrack+"/LMR="+lastMessageReceived+"}";
@@ -57,38 +57,36 @@ public class DeaconService extends DeaconObservable {
 	
 	// Configuration
 	private final String host;
-	private final int port;
-	private final long hostid;
-	private Integer catchUpTimeOut = 0;
-	protected boolean autoRestart = true;
-	private Integer pingTimeout = 0;
-	private Integer maxRetries = 10;
+	private final int    port;
+	private final long   hostid;
+	private Integer      catchUpTimeOut = 0;
+	protected boolean    autoRestart    = true;
+	private Integer      pingTimeout    = 0;
+	private Integer      maxRetries     = 10;
 	
 	// State
 	private ArrayList<Subscription> subscriptions;
-	private boolean running = false;
-	private boolean connected = false;
-	private long lastStop = 0;
-	private Thread deaconThread = null;
+	private long    lastStop     = 0;
+	private Thread  deaconThread = null;
 
 	// Resources
 	private Socket sock = null;
 	private class DeaconRunnable implements Runnable {
 		
-		private PrintWriter out = null;
-		private InputStreamReader stream = null;
-		private BufferedReader in = null;
-		private boolean error = false;
-		private int retries = 0;
+		private PrintWriter       out     = null;
+		private InputStreamReader stream  = null;
+		private BufferedReader    in      = null;
+		private boolean           error   = false;
+		private int               retries = 0;
 		
 		@Override
 		public void run() {
 			String response = "";
-			while (running){
+			while (running) {
 				
 				// Only try to reconnect up to the max retry count
 				if(retries > maxRetries) {
-					notifyObserversError(new DeaconError(new Exception("MaxRetries"), DeaconErrorType.TimeoutPermanent));
+					notifyError(new DeaconError(new Exception("MaxRetries"), DeaconErrorType.TimeoutPermanent));
 					stop();
 					break;
 				}
@@ -99,7 +97,7 @@ public class DeaconService extends DeaconObservable {
 						Thread.sleep(1000*10*retries);
 					} catch (InterruptedException e) {
 						// If can't back-off, stop trying
-						notifyObserversError(new DeaconError(e, DeaconErrorType.BackoffFailed));
+						notifyError(new DeaconError(e, DeaconErrorType.BackoffFailed));
 						running = false;
 						break;
 					}
@@ -113,7 +111,6 @@ public class DeaconService extends DeaconObservable {
 					stream = new InputStreamReader(sock.getInputStream());
 					in   = new BufferedReader(stream, 1024);
 					if(error){
-						notifyObserversReconnect();
 						error = false;
 					}
 					
@@ -122,18 +119,20 @@ public class DeaconService extends DeaconObservable {
 					sock.setSoTimeout(pingTimeout * 1000);
 					
 					retries = 0;
+					connected = true;
+					notifyState();
 					
 				} catch (UnknownHostException e) {
 					error = true;
-					notifyObserversError(new DeaconError(e, DeaconErrorType.UnknownHostError));
+					notifyError(new DeaconError(e, DeaconErrorType.UnknownHostError));
 					stop();
 				} catch (IOException e) {
 					error = true;
-					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
+					notifyError(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
 				
-				if(!error && running){
+				if(!error && running) {
 					// Construct the subscription string
 					String serverstring = "GET /push/" + hostid + "/longpoll";
 					for(Subscription sub : subscriptions) {
@@ -154,7 +153,7 @@ public class DeaconService extends DeaconObservable {
 					
 					// Join/re-join to the channel
 					out.println(serverstring);
-					connected = true;
+					System.out.println("Connected set to " + connected);
 					
 					try {
 						// Wait for a response from the channel
@@ -170,14 +169,14 @@ public class DeaconService extends DeaconObservable {
 					catch(IOException e) {
 						error = true;
 						if(e instanceof SocketTimeoutException) {
-							notifyObserversError(new DeaconError(e, DeaconErrorType.TimeoutRetrying));
+							notifyError(new DeaconError(e, DeaconErrorType.TimeoutRetrying));
 						}
 						else if(e instanceof SocketException) {
 							notifyObserversDisconnect(new DeaconError(e));
 							// This exception is thrown by sock.close(); already in stop()
 						}
 						else {
-							notifyObserversError(new DeaconError(e));
+							notifyError(new DeaconError(e));
 							stop();
 						}
 					}
@@ -186,9 +185,8 @@ public class DeaconService extends DeaconObservable {
 					// An error was encountered when trying to connect
 					connected = false;
 				}	
-			}
-		}
-		// Return --> Thread terminates
+			} // while(running)
+		} // Return --> Thread terminates
 	}
 	
 	/**
@@ -199,7 +197,7 @@ public class DeaconService extends DeaconObservable {
 	 * @throws IOException if connection cannot be established
 	 * @throws Exception if port value is invalid
 	 */
-	public DeaconService(String host, Integer port) throws UnknownHostException, IOException, Exception {
+	public MeteorPushReceiver(String host, Integer port) throws UnknownHostException, IOException, Exception {
 		// Bounds-check port; should be positive integer
 		if(port < 0) throw new Exception("Cannot instantiate Deacon with negative port value.");
 		this.host = host;
@@ -297,11 +295,11 @@ public class DeaconService extends DeaconObservable {
 	
 	/**
 	 * Initiates or re-opens the connection with the Meteor server
-	 * @throws Exception if Deacon is already running when the start() method is called
 	 */
-	public void start() throws Exception {
+	public void start() {
+		System.out.println("Got start() call");
 		if(running == true) {
-			throw new Exception("Deacon is already running!");
+			notifyError(new DeaconError(new Exception("Deacon is already running!")));
 		}
 		// Check to see if a timeout is set and it is expired
 		if((this.catchUpTimeOut != 0) && (this.lastStop != 0)) {
@@ -316,6 +314,9 @@ public class DeaconService extends DeaconObservable {
 		}
 		// Start the client
 		this.running = true;
+		System.out.println("About to notify state from start()");
+		notifyState();
+		System.out.println("State notifed of start()");
 		deaconThread = new Thread(new DeaconRunnable());
 		deaconThread.start();
 	}
@@ -324,7 +325,10 @@ public class DeaconService extends DeaconObservable {
 	 * Closes the connection to the Meteor server; Takes effect after the present polling interval terminates.
 	 */
 	public void stop(){
+		System.out.println("Got stop() call");
 		this.running = false;
+		this.lastStop = System.currentTimeMillis();
+		
 		if(sock != null && sock.isConnected()) {
 			try {
 				sock.close();
@@ -333,34 +337,27 @@ public class DeaconService extends DeaconObservable {
 				// In this case, don't need to take any particular action;
 				// The socket will eventually time out and running=false will
 				// cause the runnable's run() method to return.
+			} finally {
+				connected = false;
 			}
 		}
+		notifyState();
+		System.out.println("State notifed of stop()");
+		
 		// Set up each subscription to automatically catch itself up if Deacon is restarted
 		for(Subscription sub : this.subscriptions) {
 			if(sub.lastMessageReceived != 0) {
 				sub.catchup = sub.lastMessageReceived + 1;
 			}
 		}
-		this.lastStop = System.currentTimeMillis();
 	}
 	
 	/**
 	 * Returns a description of the DeaconService
 	 */
 	public String toString(){
-		return "Deacon @ " + host + ":" + port;
-	}
-
-	/**
-	 * Checks the status of the DeaconService
-	 * @return true if DeaconService is running; false if DeaconService is stopped
-	 */
-	public boolean isRunning() {
-		return this.running;
-	}
-	
-	public boolean isConnected() {
-		return this.connected;
+		return "Deacon " + (running ? "running" : "stopped") + " @ " + host + ":" + 
+				port + (connected ? " connected" : " disconnected");
 	}
 	
 	/**
@@ -405,7 +402,7 @@ public class DeaconService extends DeaconObservable {
 						// Create DeaconResponse object for parsed push notification
 						// TODO Pull parameters out into final local variables
 						// TODO Assumes Meteor will only push from subscribed channels; should check incoming messages against subscription list
-						notifyObservers(new DeaconResponse(parameters.group(2), parameters.group(3)));
+						notifyPush(new DeaconResponse(parameters.group(2), parameters.group(3)));
 						// Update serial numbers of last messages received in subscription list (for catchup)
 						for(Subscription sub : subscriptions) {
 							if(sub.channel.equals(parameters.group(2))) {

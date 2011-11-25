@@ -23,10 +23,14 @@ public interface DeaconObserver {
 
 	public void onPush(DeaconResponse response);
 	
+	public void onStateChanged(boolean running, boolean connected);
+	
 	public void onError(DeaconError error);
 	
+	/** @deprecated */
 	public void onReconnect();
 	
+	/** @deprecated */
 	public void onDisconnect(DeaconError error);
 	
 }

@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import org.deacon.DeaconError;
 import org.deacon.DeaconObserver;
 import org.deacon.DeaconResponse;
-import org.deacon.DeaconService;
+import org.deacon.MeteorPushReceiver;
 
 public class DemoMain implements DeaconObserver{
 	
@@ -36,9 +36,9 @@ public class DemoMain implements DeaconObserver{
 	public boolean error = false;
 	
 	public void run() throws UnknownHostException, IOException {
-		DeaconService myService;
+		MeteorPushReceiver myService;
 		try {
-			myService = new DeaconService("home.daverea.com",4670);
+			myService = new MeteorPushReceiver("home.daverea.com", 4670);
 			//myService.pingTimeout(/* Set lower than meteord.conf:PingInterval for testing */);
 			//myService.catchUpTimeOut(/* Set longer than pingTimeout if you want to recover from a single broken pipe */);
 			myService.joinChannel("2sec", 0);
@@ -90,6 +90,13 @@ public class DemoMain implements DeaconObserver{
 	public void onDisconnect(DeaconError err){
 		error=true;
 		System.out.println("Forgot to pay utility bill, Deacon is disconnected");
+	}
+
+	@Override
+	public void onStateChanged(boolean running, boolean connected) {
+		System.out.println("State changed: " + 
+						   (running ? "running" : "stopped") + ", " +
+						   (connected ? "connected" : "disconnected" ) );
 	}
 	
 }
