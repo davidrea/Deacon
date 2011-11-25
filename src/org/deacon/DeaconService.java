@@ -23,8 +23,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +61,8 @@ public class DeaconService extends DeaconObservable {
 	private final long hostid;
 	private Integer catchUpTimeOut = 0;
 	protected boolean autoRestart = true;
+	private Integer pingTimeout = 0;
+	private Integer maxRetries = 10;
 	
 	// State
 	private ArrayList<Subscription> subscriptions;
@@ -64,31 +70,58 @@ public class DeaconService extends DeaconObservable {
 	private boolean connected = false;
 	private long lastStop = 0;
 	private Thread deaconThread = null;
-	
-	/**
-	 * Runnable to execute Meteor HTTP GETs and collect the results;
-	 * this runnable implements the server interaction mode
-	 */
+
+	// Resources
+	private Socket sock = null;
 	private class DeaconRunnable implements Runnable {
 		
-		private Socket sock = null;
 		private PrintWriter out = null;
+		private InputStreamReader stream = null;
 		private BufferedReader in = null;
-		private boolean error   = false;
+		private boolean error = false;
+		private int retries = 0;
 		
 		@Override
 		public void run() {
 			String response = "";
-			while (running){ 
+			while (running){
 				
+				// Only try to reconnect up to the max retry count
+				if(retries > maxRetries) {
+					notifyObserversError(new DeaconError(new Exception("MaxRetries"), DeaconErrorType.TimeoutPermanent));
+					stop();
+					break;
+				}
+				
+				// Perform crude (linear) back-off
+				if(retries > 0) {
+					try {
+						Thread.sleep(1000*10*retries);
+					} catch (InterruptedException e) {
+						// If can't back-off, stop trying
+						notifyObserversError(new DeaconError(e, DeaconErrorType.BackoffFailed));
+						running = false;
+						break;
+					}
+				}
+				
+				// Connect
 				try {
+					++retries;
 					sock = new Socket(host, port);
 					out  = new PrintWriter(sock.getOutputStream(), true);
-					in   = new BufferedReader(new InputStreamReader(sock.getInputStream()), 1024);
+					stream = new InputStreamReader(sock.getInputStream());
+					in   = new BufferedReader(stream, 1024);
 					if(error){
 						notifyObserversReconnect();
 						error = false;
 					}
+					
+					// Set a timeout on the socket
+					// This prevents getting stuck in readline() if the pipe breaks
+					sock.setSoTimeout(pingTimeout * 1000);
+					
+					retries = 0;
 					
 				} catch (UnknownHostException e) {
 					error = true;
@@ -96,12 +129,11 @@ public class DeaconService extends DeaconObservable {
 					stop();
 				} catch (IOException e) {
 					error = true;
-					e.printStackTrace();
 					notifyObserversDisconnect(new DeaconError(e, DeaconErrorType.ConnectionError));
 					stop();
 				}
 				
-				if(!error){
+				if(!error && running){
 					// Construct the subscription string
 					String serverstring = "GET /push/" + hostid + "/longpoll";
 					for(Subscription sub : subscriptions) {
@@ -120,32 +152,43 @@ public class DeaconService extends DeaconObservable {
 					}
 					serverstring += " HTTP/1.1\r\n\r\n";
 					
-					// Subscribe to the channel
+					// Join/re-join to the channel
 					out.println(serverstring);
 					connected = true;
 					
 					try {
 						// Wait for a response from the channel
-						while( (response=in.readLine()) != null && running) {
+						while(running && (response=in.readLine()) != null) {
+							// Got a response
+							//killConnection.cancel();
 							parse(response);
 						}
 						out.close();
 						in.close();
 						sock.close();
 					}
-					catch(IOException e){
+					catch(IOException e) {
 						error = true;
-						notifyObserversError(new DeaconError(e)); 
-						//not sure what error this would be. need to test.
-						stop();
+						if(e instanceof SocketTimeoutException) {
+							notifyObserversError(new DeaconError(e, DeaconErrorType.TimeoutRetrying));
+						}
+						else if(e instanceof SocketException) {
+							notifyObserversDisconnect(new DeaconError(e));
+							// This exception is thrown by sock.close(); already in stop()
+						}
+						else {
+							notifyObserversError(new DeaconError(e));
+							stop();
+						}
 					}
 				}
 				else {
+					// An error was encountered when trying to connect
 					connected = false;
 				}	
 			}
-			connected = false;
 		}
+		// Return --> Thread terminates
 	}
 	
 	/**
@@ -156,7 +199,7 @@ public class DeaconService extends DeaconObservable {
 	 * @throws IOException if connection cannot be established
 	 * @throws Exception if port value is invalid
 	 */
-	public DeaconService(String host, Integer port) throws UnknownHostException, IOException, Exception{
+	public DeaconService(String host, Integer port) throws UnknownHostException, IOException, Exception {
 		// Bounds-check port; should be positive integer
 		if(port < 0) throw new Exception("Cannot instantiate Deacon with negative port value.");
 		this.host = host;
@@ -177,11 +220,28 @@ public class DeaconService extends DeaconObservable {
 	/**
 	 * Get the timeout after which Deacon will no longer try to retrieve pushes missed while shut down
 	 * (This applies to all subscriptions)
-	 * Will return "0" if no timeout.
 	 * @return the currently-configured timeout in seconds, or 0 if catchup is disabled
 	 */
 	public int catchUpTimeOut() {
 		return catchUpTimeOut;
+	}
+	
+	/**
+	 * Set the timeout before which a Meteor ping must be heard
+	 * <p>If this function is called after subscribing to a channel, the ping configuration will not
+	 * take effect until <strong>after</strong> the next push or Meteor ping message is received.</p>
+	 * @param seconds The timeout in seconds (0 = no timeout)
+	 */
+	public void pingTimeout(final Integer seconds) {
+		pingTimeout = seconds;
+	}
+	
+	/**
+	 * Get the timeout before hich a Meteor ping must be heard
+	 * @return the currently-configured timeout in seconds, or 0 if no timeout is configured
+	 */
+	public int pingTimeout() {
+		return pingTimeout;
 	}
 	
 	/**
@@ -231,7 +291,7 @@ public class DeaconService extends DeaconObservable {
 		}
 		if(removeMe != null)
 		{
-			Boolean removed = subscriptions.remove(removeMe);
+			subscriptions.remove(removeMe);
 		}
 	}
 	
@@ -255,9 +315,9 @@ public class DeaconService extends DeaconObservable {
 			}
 		}
 		// Start the client
+		this.running = true;
 		deaconThread = new Thread(new DeaconRunnable());
 		deaconThread.start();
-		this.running = true;
 	}
 	
 	/**
@@ -265,6 +325,16 @@ public class DeaconService extends DeaconObservable {
 	 */
 	public void stop(){
 		this.running = false;
+		if(sock != null && sock.isConnected()) {
+			try {
+				sock.close();
+			} catch (IOException e) {
+				// Unable to close socket?!
+				// In this case, don't need to take any particular action;
+				// The socket will eventually time out and running=false will
+				// cause the runnable's run() method to return.
+			}
+		}
 		// Set up each subscription to automatically catch itself up if Deacon is restarted
 		for(Subscription sub : this.subscriptions) {
 			if(sub.lastMessageReceived != 0) {

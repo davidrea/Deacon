@@ -39,7 +39,9 @@ public class DemoMain implements DeaconObserver{
 		DeaconService myService;
 		try {
 			myService = new DeaconService("home.daverea.com",4670);
-			myService.joinChannel("2sec", 0);			
+			//myService.pingTimeout(/* Set lower than meteord.conf:PingInterval for testing */);
+			//myService.catchUpTimeOut(/* Set longer than pingTimeout if you want to recover from a single broken pipe */);
+			myService.joinChannel("2sec", 0);
 			myService.register(this);
 			
 			try {
@@ -75,19 +77,19 @@ public class DemoMain implements DeaconObserver{
 	@Override
 	public void onError(DeaconError err) {
 		error = true;
-		System.out.println("What the deuce, there was an ERROR: "+err.getErrorMsg());
+		System.out.println("What the deuce?! There was an error: "+err.getErrorMsg());
 	}
 
 	@Override
 	public void onReconnect() {
 		error=false;
-		System.out.println("Oh Hai!~ I'm reconnected");
+		System.out.println("Oh Hai! O_o Deacon is reconnected");
 	}
 	
 	@Override
 	public void onDisconnect(DeaconError err){
 		error=true;
-		System.out.println("Forgot to pay utility bill, I'm disconnected");
+		System.out.println("Forgot to pay utility bill, Deacon is disconnected");
 	}
 	
 }
