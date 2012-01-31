@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import org.deacon.DeaconError;
 import org.deacon.DeaconObserver;
 import org.deacon.DeaconResponse;
-import org.deacon.DeaconService;
+import org.deacon.MeteorPushReceiver;
 
 /**
  * Class to test various capacity limits of the Meteor server and Deacon client
@@ -33,7 +33,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 	public static final int CONTROLLER_PORT	 = 4671;
 	public static final String CHANNEL		 = "testchan";
 	
-	private ArrayList<DeaconService> DeaconInstances = new ArrayList<DeaconService>();
+	private ArrayList<MeteorPushReceiver> DeaconInstances = new ArrayList<MeteorPushReceiver>();
 	private int maxLatency 							 = 0;
 	private Hashtable<Integer, Integer> simulSubsReuslts	 = new Hashtable<Integer, Integer>();
 	
@@ -74,7 +74,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 			
 			// Add subscribers
 			try {
-				DeaconService deacon = new DeaconService(SERVER, CLIENT_PORT);
+				MeteorPushReceiver deacon = new MeteorPushReceiver(SERVER, CLIENT_PORT);
 				deacon.joinChannel(CHANNEL, 0);
 				deacon.register(this);
 				deacon.start();
@@ -93,7 +93,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 		}
 		
 		// Test done
-		for(DeaconService sub : DeaconInstances) {
+		for(MeteorPushReceiver sub : DeaconInstances) {
 			sub.stop();
 		}
 		
@@ -123,7 +123,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 			
 			// Add channel
 			try {
-				DeaconService deacon = new DeaconService(SERVER, CLIENT_PORT);
+				MeteorPushReceiver deacon = new MeteorPushReceiver(SERVER, CLIENT_PORT);
 				deacon.joinChannel("chan" + DeaconInstances.size(), 0);
 				deacon.register(this);
 				deacon.start();
@@ -134,7 +134,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 			}
 			
 			// Send push messages to all channels
-			for (DeaconService sub : DeaconInstances) {
+			for (MeteorPushReceiver sub : DeaconInstances) {
 				sendPush("chan" + DeaconInstances.indexOf(sub), 
 						 DeaconInstances.size() + "," + Long.toString(System.currentTimeMillis()));
 			}
@@ -143,7 +143,7 @@ public class DeaconCapacityTest implements DeaconObserver {
 		}
 		
 		// Test done
-		for(DeaconService sub : DeaconInstances) {
+		for(MeteorPushReceiver sub : DeaconInstances) {
 			sub.stop();
 		}
 		
@@ -221,5 +221,11 @@ public class DeaconCapacityTest implements DeaconObserver {
 
 	@Override
 	public void onDisconnect(DeaconError error) { }
+
+	@Override
+	public void onStateChanged(boolean running, boolean connected) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
