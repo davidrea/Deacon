@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 import org.deacon.DeaconError;
 import org.deacon.DeaconObserver;
 import org.deacon.DeaconResponse;
-import org.deacon.DeaconService;
+import org.deacon.MeteorPushReceiver;
 
 public class DemoMainCatchup implements DeaconObserver{
 	
@@ -36,9 +36,9 @@ public class DemoMainCatchup implements DeaconObserver{
 	public boolean error = false;
 	
 	public void run() throws UnknownHostException, IOException {
-		DeaconService myService;
+		MeteorPushReceiver myService;
 		try {
-			myService = new DeaconService("home.daverea.com",4670);
+			myService = new MeteorPushReceiver("home.daverea.com",4670);
 			myService.joinChannel("2sec", 3);
 			myService.register(this);
 			myService.catchUpTimeOut(10);
@@ -111,6 +111,12 @@ public class DemoMainCatchup implements DeaconObserver{
 	public void onDisconnect(DeaconError err) {
 		error = false;
 		System.out.println("Forgot to pay the utilities, I'm disconnected");
+	}
+
+	@Override
+	public void onStateChanged(boolean running, boolean connected) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
